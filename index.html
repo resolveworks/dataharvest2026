@@ -81,36 +81,28 @@
           <p>To get started:</p>
           <ol>
             <li>
-              Visit:
-              <a href="https://console.neo4j.io/" target="_blank"
-                >console.neo4j.io</a
-              >
-              and create an account
-            </li>
-            <li>
-              Create a free instance:
-              <button type="button" class="button">Create instance</button>
-            </li>
-            <li>
-              Visit
-              <a href="https://llm-graph-builder.neo4jlabs.com" target="_blank"
-                >llm-graph-builder.neo4jlabs.com</a
+              Have Python installed, or use
+              <a href="https://colab.research.google.com/" target="_blank"
+                >Google Colab</a
               >
             </li>
             <li>
-              Connect to your instance:
-              <button type="button" class="button">Connect to Neo4j</button>
-
-              <small
-                >(Use the credentials file downloaded on instance
-                creation)</small
+              Create a
+              <a href="https://huggingface.co/join" target="_blank"
+                >Hugging Face account</a
               >
+            </li>
+            <li>
+              Install the library:
+              <code>pip install sentence-transformers</code>
             </li>
           </ol>
 
           <p>
             Slides:
-            <a href="http://nodes25.resolve.works">nodes25.resolve.works</a>
+            <a href="https://textembeddings.resolve.works"
+              >textembeddings.resolve.works</a
+            >
           </p>
         </section>
 
@@ -588,40 +580,39 @@ embedding = model.encode(sentence)
         </section>
 
         <section>
-          <h2>GraphRAG tools</h2>
+          <h2>Tools to play with</h2>
           <ol>
             <li>
-              <a href="https://github.com/microsoft/graphrag" target="_blank"
-                >github.com/microsoft/graphrag</a
-              >
+              <a href="https://sbert.net" target="_blank">sbert.net</a>
               <br />
-              <a
-                href="https://github.com/noworneverev/graphrag-visualizer"
-                target="_blank"
-                >github.com/noworneverev/graphrag-visualizer</a
-              >
-              <small>Widely adopted, popular</small>
+              <small>Sentence Transformers — the Python library for embeddings</small>
             </li>
             <li>
               <a
-                href="https://github.com/gusye1234/nano-graphrag"
+                href="https://huggingface.co/spaces/mteb/leaderboard"
                 target="_blank"
-                >github.com/gusye1234/nano-graphrag</a
+                >huggingface.co/spaces/mteb/leaderboard</a
               >
               <br />
-              <small>Small, easy to hack on</small>
+              <small>MTEB Leaderboard — compare embedding models</small>
             </li>
             <li>
-              <a href="https://llm-graph-builder.neo4jlabs.com" target="_blank"
-                >llm-graph-builder.neo4jlabs.com</a
+              <a
+                href="https://projector.tensorflow.org/"
+                target="_blank"
+                >projector.tensorflow.org</a
               >
               <br />
+              <small>Embedding Projector — interactive 3D visualization</small>
+            </li>
+            <li>
               <a
-                href="https://github.com/neo4j/neo4j-graphrag-python"
+                href="https://umap-learn.readthedocs.io/"
                 target="_blank"
-                >github.com/neo4j/neo4j-graphrag-python</a
+                >umap-learn.readthedocs.io</a
               >
-              <small>Neo4j ecosystem</small>
+              <br />
+              <small>UMAP — dimensionality reduction for visualization</small>
             </li>
           </ol>
         </section>
@@ -637,15 +628,25 @@ embedding = model.encode(sentence)
                 >github.com/docling-project/docling</a
               >
               <br />
-              <small>IBM Research</small>
+              <small>IBM Research — tables, figures, complex layouts</small>
             </li>
             <li>
               <a href="https://github.com/microsoft/markitdown" target="_blank"
                 >github.com/microsoft/markitdown</a
               >
               <br />
-              <small>Microsoft</small>
+              <small>Microsoft — Office, PDF, audio, images → markdown</small>
             </li>
+            <li>
+              <a
+                href="https://pymupdf4llm.readthedocs.io/"
+                target="_blank"
+                >pymupdf4llm.readthedocs.io</a
+              >
+              <br />
+              <small>Fast PDF → markdown, no GPU needed</small>
+            </li>
+
           </ol>
         </section>
       </div>
