@@ -1,0 +1,2124 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+
+    <title>Finding Connections</title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/reveal.js@5.2.1/dist/reveal.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/reveal.js@5.2.1/dist/theme/white.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/reveal.js@5.2.1/plugin/highlight/monokai.css"
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --r-heading-font: "Inter", sans-serif;
+        --r-main-font: "Source Sans 3", sans-serif;
+        --r-heading-text-transform: none;
+      }
+    </style>
+
+    <style>
+      .reveal .slides section {
+        text-align: left;
+      }
+      .reveal .slides section.centered {
+        text-align: center;
+      }
+
+      pre.unstyled {
+        box-shadow: none;
+      }
+
+      table.align-right td:nth-child(2) {
+        text-align: right;
+      }
+
+      .button {
+        all: unset;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgb(143 227 232 / 1);
+        padding: 0.5rem 2rem;
+        border-radius: 0.5rem;
+        font-weight: bold;
+        font-size: 2rem;
+      }
+
+      .qr {
+        width: 300px;
+        aspect-ratio: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section>
+          <h1>Welcome</h1>
+
+          <p>To get started:</p>
+          <ol>
+            <li>
+              Visit:
+              <a href="https://console.neo4j.io/" target="_blank"
+                >console.neo4j.io</a
+              >
+              and create an account
+            </li>
+            <li>
+              Create a free instance:
+              <button type="button" class="button">Create instance</button>
+            </li>
+            <li>
+              Visit
+              <a href="https://llm-graph-builder.neo4jlabs.com" target="_blank"
+                >llm-graph-builder.neo4jlabs.com</a
+              >
+            </li>
+            <li>
+              Connect to your instance:
+              <button type="button" class="button">Connect to Neo4j</button>
+
+              <small
+                >(Use the credentials file downloaded on instance
+                creation)</small
+              >
+            </li>
+          </ol>
+
+          <p>
+            Slides:
+            <a href="http://nodes25.resolve.works">nodes25.resolve.works</a>
+          </p>
+        </section>
+
+        <section>
+          <h1>Finding Connections</h1>
+        </section>
+
+        <section>
+          <h2>Who am I?</h2>
+        </section>
+
+        <section>
+          <h2>I'm Johan</h2>
+
+          <ul>
+            <li>
+              <a href="https://resolve.works" target="_blank"
+                >AI/Data engineering consultant</a
+              >
+            </li>
+            <li>Over 15 years of building software</li>
+            <li>Focused on ethical tech</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>What we'll cover today</h2>
+          <ul>
+            <li>How GraphRAG works</li>
+            <li>What is it made of?</li>
+          </ul>
+        </section>
+
+        <section>
+          <p>
+            Let's understand the
+            <strong>underlying concepts & technologies</strong>
+          </p>
+        </section>
+
+        <section>
+          <p>So you can use these tools in your own work</p>
+        </section>
+
+        <section>
+          <h2>So, what is GraphRAG?</h2>
+          <p class="fragment">
+            A way of getting better answers from a language model by feeding it
+            information from a knowledge graph
+          </p>
+        </section>
+
+        <section>
+          <h2>Graph + RAG</h2>
+          <p class="fragment">What is a graph?</p>
+          <p class="fragment">And, what is RAG?</p>
+        </section>
+
+        <section>
+          <p>So first things first...</p>
+        </section>
+
+        <section>
+          <div class="r-stack">
+            <h2>What is a graph?</h2>
+            <div class="fragment" id="graph"></div>
+          </div>
+        </section>
+
+        <section>
+          <p>Nodes and edges.</p>
+          <p class="fragment">
+            <strong>Or:</strong> Entities and their relations.
+          </p>
+        </section>
+
+        <section>
+          <svg
+            aria-roledescription="flowchart-v2"
+            role="graphics-document document"
+            viewBox="0 0 2823.25 296.3000183105469"
+            style="max-width: 2823.25px"
+            class="flowchart"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            xmlns="http://www.w3.org/2000/svg"
+            width="100%"
+            id="mermaid-1747825285913"
+          >
+            <style>
+              #mermaid-1747825285913 {
+                font-family: "trebuchet ms", verdana, arial, sans-serif;
+                font-size: 3rem;
+                fill: #000000;
+              }
+              @keyframes edge-animation-frame {
+                from {
+                  stroke-dashoffset: 0;
+                }
+              }
+              @keyframes dash {
+                to {
+                  stroke-dashoffset: 0;
+                }
+              }
+              #mermaid-1747825285913 .edge-animation-slow {
+                stroke-dasharray: 9, 5 !important;
+                stroke-dashoffset: 900;
+                animation: dash 50s linear infinite;
+                stroke-linecap: round;
+              }
+              #mermaid-1747825285913 .edge-animation-fast {
+                stroke-dasharray: 9, 5 !important;
+                stroke-dashoffset: 900;
+                animation: dash 20s linear infinite;
+                stroke-linecap: round;
+              }
+              #mermaid-1747825285913 .error-icon {
+                fill: #552222;
+              }
+              #mermaid-1747825285913 .error-text {
+                fill: #552222;
+                stroke: #552222;
+              }
+              #mermaid-1747825285913 .edge-thickness-normal {
+                stroke-width: 1px;
+              }
+              #mermaid-1747825285913 .edge-thickness-thick {
+                stroke-width: 3.5px;
+              }
+              #mermaid-1747825285913 .edge-pattern-solid {
+                stroke-dasharray: 0;
+              }
+              #mermaid-1747825285913 .edge-thickness-invisible {
+                stroke-width: 0;
+                fill: none;
+              }
+              #mermaid-1747825285913 .edge-pattern-dashed {
+                stroke-dasharray: 3;
+              }
+              #mermaid-1747825285913 .edge-pattern-dotted {
+                stroke-dasharray: 2;
+              }
+              #mermaid-1747825285913 .marker {
+                fill: #666;
+                stroke: #666;
+              }
+              #mermaid-1747825285913 .marker.cross {
+                stroke: #666;
+              }
+              #mermaid-1747825285913 svg {
+                font-family: "trebuchet ms", verdana, arial, sans-serif;
+                font-size: 3rem;
+              }
+              #mermaid-1747825285913 p {
+                margin: 0;
+              }
+              #mermaid-1747825285913 .label {
+                font-family: "trebuchet ms", verdana, arial, sans-serif;
+                color: #000000;
+              }
+              #mermaid-1747825285913 .cluster-label text {
+                fill: #333;
+              }
+              #mermaid-1747825285913 .cluster-label span {
+                color: #333;
+              }
+              #mermaid-1747825285913 .cluster-label span p {
+                background-color: transparent;
+              }
+              #mermaid-1747825285913 .label text,
+              #mermaid-1747825285913 span {
+                fill: #000000;
+                color: #000000;
+              }
+              #mermaid-1747825285913 .node rect,
+              #mermaid-1747825285913 .node circle,
+              #mermaid-1747825285913 .node ellipse,
+              #mermaid-1747825285913 .node polygon,
+              #mermaid-1747825285913 .node path {
+                fill: #eee;
+                stroke: #999;
+                stroke-width: 1px;
+              }
+              #mermaid-1747825285913 .rough-node .label text,
+              #mermaid-1747825285913 .node .label text,
+              #mermaid-1747825285913 .image-shape .label,
+              #mermaid-1747825285913 .icon-shape .label {
+                text-anchor: middle;
+              }
+              #mermaid-1747825285913 .node .katex path {
+                fill: #000;
+                stroke: #000;
+                stroke-width: 1px;
+              }
+              #mermaid-1747825285913 .rough-node .label,
+              #mermaid-1747825285913 .node .label,
+              #mermaid-1747825285913 .image-shape .label,
+              #mermaid-1747825285913 .icon-shape .label {
+                text-align: center;
+              }
+              #mermaid-1747825285913 .node.clickable {
+                cursor: pointer;
+              }
+              #mermaid-1747825285913 .root .anchor path {
+                fill: #666 !important;
+                stroke-width: 0;
+                stroke: #666;
+              }
+              #mermaid-1747825285913 .arrowheadPath {
+                fill: #333333;
+              }
+              #mermaid-1747825285913 .edgePath .path {
+                stroke: #666;
+                stroke-width: 2px;
+              }
+              #mermaid-1747825285913 .flowchart-link {
+                stroke: #666;
+                fill: none;
+              }
+              #mermaid-1747825285913 .edgeLabel {
+                background-color: white;
+                text-align: center;
+              }
+              #mermaid-1747825285913 .edgeLabel p {
+                background-color: white;
+              }
+              #mermaid-1747825285913 .edgeLabel rect {
+                opacity: 0.5;
+                background-color: white;
+                fill: white;
+              }
+              #mermaid-1747825285913 .labelBkg {
+                background-color: rgba(255, 255, 255, 0.5);
+              }
+              #mermaid-1747825285913 .cluster rect {
+                fill: hsl(0, 0%, 98.9215686275%);
+                stroke: #707070;
+                stroke-width: 1px;
+              }
+              #mermaid-1747825285913 .cluster text {
+                fill: #333;
+              }
+              #mermaid-1747825285913 .cluster span {
+                color: #333;
+              }
+              #mermaid-1747825285913 div.mermaidTooltip {
+                position: absolute;
+                text-align: center;
+                max-width: 200px;
+                padding: 2px;
+                font-family: "trebuchet ms", verdana, arial, sans-serif;
+                font-size: 12px;
+                background: hsl(-160, 0%, 93.3333333333%);
+                border: 1px solid #707070;
+                border-radius: 2px;
+                pointer-events: none;
+                z-index: 100;
+              }
+              #mermaid-1747825285913 .flowchartTitleText {
+                text-anchor: middle;
+                font-size: 18px;
+                fill: #000000;
+              }
+              #mermaid-1747825285913 rect.text {
+                fill: none;
+                stroke-width: 0;
+              }
+              #mermaid-1747825285913 .icon-shape,
+              #mermaid-1747825285913 .image-shape {
+                background-color: white;
+                text-align: center;
+              }
+              #mermaid-1747825285913 .icon-shape p,
+              #mermaid-1747825285913 .image-shape p {
+                background-color: white;
+                padding: 2px;
+              }
+              #mermaid-1747825285913 .icon-shape rect,
+              #mermaid-1747825285913 .image-shape rect {
+                opacity: 0.5;
+                background-color: white;
+                fill: white;
+              }
+              #mermaid-1747825285913 :root {
+                --mermaid-font-family: "trebuchet ms", verdana, arial,
+                  sans-serif;
+              }
+            </style>
+            <g>
+              <marker
+                orient="auto"
+                markerHeight="8"
+                markerWidth="8"
+                markerUnits="userSpaceOnUse"
+                refY="5"
+                refX="5"
+                viewBox="0 0 10 10"
+                class="marker flowchart-v2"
+                id="mermaid-1747825285913_flowchart-v2-pointEnd"
+              >
+                <path
+                  style="stroke-width: 1px; stroke-dasharray: 1px, 0px"
+                  class="arrowMarkerPath"
+                  d="M 0 0 L 10 5 L 0 10 z"
+                ></path>
+              </marker>
+              <marker
+                orient="auto"
+                markerHeight="8"
+                markerWidth="8"
+                markerUnits="userSpaceOnUse"
+                refY="5"
+                refX="4.5"
+                viewBox="0 0 10 10"
+                class="marker flowchart-v2"
+                id="mermaid-1747825285913_flowchart-v2-pointStart"
+              >
+                <path
+                  style="stroke-width: 1px; stroke-dasharray: 1px, 0px"
+                  class="arrowMarkerPath"
+                  d="M 0 5 L 10 10 L 10 0 z"
+                ></path>
+              </marker>
+              <marker
+                orient="auto"
+                markerHeight="11"
+                markerWidth="11"
+                markerUnits="userSpaceOnUse"
+                refY="5"
+                refX="11"
+                viewBox="0 0 10 10"
+                class="marker flowchart-v2"
+                id="mermaid-1747825285913_flowchart-v2-circleEnd"
+              >
+                <circle
+                  style="stroke-width: 1px; stroke-dasharray: 1px, 0px"
+                  class="arrowMarkerPath"
+                  r="5"
+                  cy="5"
+                  cx="5"
+                ></circle>
+              </marker>
+              <marker
+                orient="auto"
+                markerHeight="11"
+                markerWidth="11"
+                markerUnits="userSpaceOnUse"
+                refY="5"
+                refX="-1"
+                viewBox="0 0 10 10"
+                class="marker flowchart-v2"
+                id="mermaid-1747825285913_flowchart-v2-circleStart"
+              >
+                <circle
+                  style="stroke-width: 1px; stroke-dasharray: 1px, 0px"
+                  class="arrowMarkerPath"
+                  r="5"
+                  cy="5"
+                  cx="5"
+                ></circle>
+              </marker>
+              <marker
+                orient="auto"
+                markerHeight="11"
+                markerWidth="11"
+                markerUnits="userSpaceOnUse"
+                refY="5.2"
+                refX="12"
+                viewBox="0 0 11 11"
+                class="marker cross flowchart-v2"
+                id="mermaid-1747825285913_flowchart-v2-crossEnd"
+              >
+                <path
+                  style="stroke-width: 2px; stroke-dasharray: 1px, 0px"
+                  class="arrowMarkerPath"
+                  d="M 1,1 l 9,9 M 10,1 l -9,9"
+                ></path>
+              </marker>
+              <marker
+                orient="auto"
+                markerHeight="11"
+                markerWidth="11"
+                markerUnits="userSpaceOnUse"
+                refY="5.2"
+                refX="-1"
+                viewBox="0 0 11 11"
+                class="marker cross flowchart-v2"
+                id="mermaid-1747825285913_flowchart-v2-crossStart"
+              >
+                <path
+                  style="stroke-width: 2px; stroke-dasharray: 1px, 0px"
+                  class="arrowMarkerPath"
+                  d="M 1,1 l 9,9 M 10,1 l -9,9"
+                ></path>
+              </marker>
+              <g class="root">
+                <g class="clusters"></g>
+                <g class="edgePaths">
+                  <path
+                    marker-end="url(#mermaid-1747825285913_flowchart-v2-pointEnd)"
+                    style=""
+                    class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link"
+                    id="L_A_B_0"
+                    d="M340.917,148.15L357.826,148.15C374.736,148.15,408.556,148.15,441.708,148.15C474.861,148.15,507.347,148.15,523.59,148.15L539.833,148.15"
+                  ></path>
+                  <path
+                    marker-end="url(#mermaid-1747825285913_flowchart-v2-pointEnd)"
+                    style=""
+                    class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link"
+                    id="L_B_C_0"
+                    d="M876.75,104.294L901.243,97.841C925.736,91.387,974.722,78.481,1023.042,72.028C1071.361,65.575,1119.014,65.575,1142.84,65.575L1166.667,65.575"
+                  ></path>
+                  <path
+                    marker-end="url(#mermaid-1747825285913_flowchart-v2-pointEnd)"
+                    style=""
+                    class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link"
+                    id="L_B_D_0"
+                    d="M876.75,192.006L901.243,198.459C925.736,204.913,974.722,217.819,1023.042,224.272C1071.361,230.725,1119.014,230.725,1142.84,230.725L1166.667,230.725"
+                  ></path>
+                  <path
+                    marker-end="url(#mermaid-1747825285913_flowchart-v2-pointEnd)"
+                    style=""
+                    class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link"
+                    id="L_C_E_0"
+                    d="M1503.583,65.575L1530.493,65.575C1557.403,65.575,1611.222,65.575,1664.395,72.189C1717.568,78.802,1770.095,92.029,1796.358,98.643L1822.621,105.256"
+                  ></path>
+                  <path
+                    marker-end="url(#mermaid-1747825285913_flowchart-v2-pointEnd)"
+                    style=""
+                    class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link"
+                    id="L_D_E_0"
+                    d="M1503.583,230.725L1530.493,230.725C1557.403,230.725,1611.222,230.725,1664.395,224.111C1717.568,217.498,1770.095,204.271,1796.358,197.657L1822.621,191.044"
+                  ></path>
+                  <path
+                    marker-end="url(#mermaid-1747825285913_flowchart-v2-pointEnd)"
+                    style=""
+                    class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link"
+                    id="L_E_G_0"
+                    d="M2159.417,106.233L2186.327,99.457C2213.236,92.68,2267.056,79.128,2324.747,72.351C2382.439,65.575,2444.003,65.575,2474.785,65.575L2505.567,65.575"
+                  ></path>
+                  <path
+                    marker-end="url(#mermaid-1747825285913_flowchart-v2-pointEnd)"
+                    style=""
+                    class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link"
+                    id="L_E_F_0"
+                    d="M2159.417,190.067L2186.327,196.843C2213.236,203.62,2267.056,217.172,2320.208,223.949C2373.361,230.725,2425.847,230.725,2452.09,230.725L2478.333,230.725"
+                  ></path>
+                </g>
+                <g class="edgeLabels">
+                  <g
+                    transform="translate(442.3750228881836, 148.15000915527344)"
+                    class="edgeLabel"
+                  >
+                    <g
+                      transform="translate(-76.45833587646484, -42.57500457763672)"
+                      class="label"
+                    >
+                      <foreignObject
+                        height="85.15000915527344"
+                        width="152.9166717529297"
+                        ><div
+                          class="labelBkg"
+                          xmlns="http://www.w3.org/1999/xhtml"
+                          style="
+                            display: table-cell;
+                            white-space: nowrap;
+                            line-height: 1.5;
+                            max-width: 200px;
+                            text-align: center;
+                          "
+                        >
+                          <span class="edgeLabel"><p>owns</p></span>
+                        </div></foreignObject
+                      >
+                    </g>
+                  </g>
+                  <g
+                    transform="translate(1023.708381652832, 65.57500457763672)"
+                    class="edgeLabel"
+                  >
+                    <g
+                      transform="translate(-121.95833587646484, -42.57500457763672)"
+                      class="label"
+                    >
+                      <foreignObject
+                        height="85.15000915527344"
+                        width="243.9166717529297"
+                        ><div
+                          class="labelBkg"
+                          xmlns="http://www.w3.org/1999/xhtml"
+                          style="
+                            display: table-cell;
+                            white-space: nowrap;
+                            line-height: 1.5;
+                            max-width: 200px;
+                            text-align: center;
+                          "
+                        >
+                          <span class="edgeLabel"><p>employs</p></span>
+                        </div></foreignObject
+                      >
+                    </g>
+                  </g>
+                  <g
+                    transform="translate(1023.708381652832, 230.72501373291016)"
+                    class="edgeLabel"
+                  >
+                    <g
+                      transform="translate(-121.95833587646484, -42.57500457763672)"
+                      class="label"
+                    >
+                      <foreignObject
+                        height="85.15000915527344"
+                        width="243.9166717529297"
+                        ><div
+                          class="labelBkg"
+                          xmlns="http://www.w3.org/1999/xhtml"
+                          style="
+                            display: table-cell;
+                            white-space: nowrap;
+                            line-height: 1.5;
+                            max-width: 200px;
+                            text-align: center;
+                          "
+                        >
+                          <span class="edgeLabel"><p>employs</p></span>
+                        </div></foreignObject
+                      >
+                    </g>
+                  </g>
+                  <g
+                    transform="translate(1665.041748046875, 65.57500457763672)"
+                    class="edgeLabel"
+                  >
+                    <g
+                      transform="translate(-112.89167022705078, -42.57500457763672)"
+                      class="label"
+                    >
+                      <foreignObject
+                        height="85.15000915527344"
+                        width="225.78334045410156"
+                        ><div
+                          class="labelBkg"
+                          xmlns="http://www.w3.org/1999/xhtml"
+                          style="
+                            display: table-cell;
+                            white-space: nowrap;
+                            line-height: 1.5;
+                            max-width: 200px;
+                            text-align: center;
+                          "
+                        >
+                          <span class="edgeLabel"><p>initiated</p></span>
+                        </div></foreignObject
+                      >
+                    </g>
+                  </g>
+                  <g
+                    transform="translate(1665.041748046875, 230.72501373291016)"
+                    class="edgeLabel"
+                  >
+                    <g
+                      transform="translate(-136.45834350585938, -42.57500457763672)"
+                      class="label"
+                    >
+                      <foreignObject
+                        height="85.15000915527344"
+                        width="272.91668701171875"
+                        ><div
+                          class="labelBkg"
+                          xmlns="http://www.w3.org/1999/xhtml"
+                          style="
+                            display: table-cell;
+                            white-space: nowrap;
+                            line-height: 1.5;
+                            max-width: 200px;
+                            text-align: center;
+                          "
+                        >
+                          <span class="edgeLabel"><p>authorized</p></span>
+                        </div></foreignObject
+                      >
+                    </g>
+                  </g>
+                  <g
+                    transform="translate(2320.8751220703125, 65.57500457763672)"
+                    class="edgeLabel"
+                  >
+                    <g
+                      transform="translate(-136.45834350585938, -42.57500457763672)"
+                      class="label"
+                    >
+                      <foreignObject
+                        height="85.15000915527344"
+                        width="272.91668701171875"
+                        ><div
+                          class="labelBkg"
+                          xmlns="http://www.w3.org/1999/xhtml"
+                          style="
+                            display: table-cell;
+                            white-space: nowrap;
+                            line-height: 1.5;
+                            max-width: 200px;
+                            text-align: center;
+                          "
+                        >
+                          <span class="edgeLabel"><p>processed at</p></span>
+                        </div></foreignObject
+                      >
+                    </g>
+                  </g>
+                  <g
+                    transform="translate(2320.8751220703125, 230.72501373291016)"
+                    class="edgeLabel"
+                  >
+                    <g
+                      transform="translate(-136.45834350585938, -42.57500457763672)"
+                      class="label"
+                    >
+                      <foreignObject
+                        height="85.15000915527344"
+                        width="272.91668701171875"
+                        ><div
+                          class="labelBkg"
+                          xmlns="http://www.w3.org/1999/xhtml"
+                          style="
+                            display: table-cell;
+                            white-space: nowrap;
+                            line-height: 1.5;
+                            max-width: 200px;
+                            text-align: center;
+                          "
+                        >
+                          <span class="edgeLabel"><p>occurred in</p></span>
+                        </div></foreignObject
+                      >
+                    </g>
+                  </g>
+                </g>
+                <g class="nodes">
+                  <g
+                    transform="translate(174.45834350585938, 148.15000915527344)"
+                    id="flowchart-A-0"
+                    class="node default"
+                  >
+                    <rect
+                      height="115.15000915527344"
+                      width="332.91668701171875"
+                      y="-57.57500457763672"
+                      x="-166.45834350585938"
+                      style="
+                        fill: #f9f !important;
+                        stroke: #333 !important;
+                        stroke-width: 2px !important;
+                      "
+                      class="basic label-container"
+                    ></rect>
+                    <g
+                      transform="translate(-136.45834350585938, -42.57500457763672)"
+                      style=""
+                      class="label"
+                    >
+                      <rect></rect>
+                      <foreignObject
+                        height="85.15000915527344"
+                        width="272.91668701171875"
+                        ><div
+                          xmlns="http://www.w3.org/1999/xhtml"
+                          style="
+                            display: table-cell;
+                            white-space: nowrap;
+                            line-height: 1.5;
+                            max-width: 200px;
+                            text-align: center;
+                          "
+                        >
+                          <span class="nodeLabel"><p>Company A</p></span>
+                        </div></foreignObject
+                      >
+                    </g>
+                  </g>
+                  <g
+                    transform="translate(710.2917022705078, 148.15000915527344)"
+                    id="flowchart-B-1"
+                    class="node default"
+                  >
+                    <rect
+                      height="115.15000915527344"
+                      width="332.91668701171875"
+                      y="-57.57500457763672"
+                      x="-166.45834350585938"
+                      style="
+                        fill: #bbf !important;
+                        stroke: #333 !important;
+                        stroke-width: 2px !important;
+                      "
+                      class="basic label-container"
+                    ></rect>
+                    <g
+                      transform="translate(-136.45834350585938, -42.57500457763672)"
+                      style=""
+                      class="label"
+                    >
+                      <rect></rect>
+                      <foreignObject
+                        height="85.15000915527344"
+                        width="272.91668701171875"
+                        ><div
+                          xmlns="http://www.w3.org/1999/xhtml"
+                          style="
+                            display: table-cell;
+                            white-space: nowrap;
+                            line-height: 1.5;
+                            max-width: 200px;
+                            text-align: center;
+                          "
+                        >
+                          <span class="nodeLabel"><p>Company B</p></span>
+                        </div></foreignObject
+                      >
+                    </g>
+                  </g>
+                  <g
+                    transform="translate(1337.1250610351562, 65.57500457763672)"
+                    id="flowchart-C-2"
+                    class="node default"
+                  >
+                    <rect
+                      height="115.15000915527344"
+                      width="332.91668701171875"
+                      y="-57.57500457763672"
+                      x="-166.45834350585938"
+                      style="
+                        fill: #bfb !important;
+                        stroke: #333 !important;
+                        stroke-width: 2px !important;
+                      "
+                      class="basic label-container"
+                    ></rect>
+                    <g
+                      transform="translate(-136.45834350585938, -42.57500457763672)"
+                      style=""
+                      class="label"
+                    >
+                      <rect></rect>
+                      <foreignObject
+                        height="85.15000915527344"
+                        width="272.91668701171875"
+                        ><div
+                          xmlns="http://www.w3.org/1999/xhtml"
+                          style="
+                            display: table-cell;
+                            white-space: nowrap;
+                            line-height: 1.5;
+                            max-width: 200px;
+                            text-align: center;
+                          "
+                        >
+                          <span class="nodeLabel"><p>Person C</p></span>
+                        </div></foreignObject
+                      >
+                    </g>
+                  </g>
+                  <g
+                    transform="translate(1337.1250610351562, 230.72501373291016)"
+                    id="flowchart-D-3"
+                    class="node default"
+                  >
+                    <rect
+                      height="115.15000915527344"
+                      width="332.91668701171875"
+                      y="-57.57500457763672"
+                      x="-166.45834350585938"
+                      style="
+                        fill: #fbf !important;
+                        stroke: #333 !important;
+                        stroke-width: 2px !important;
+                      "
+                      class="basic label-container"
+                    ></rect>
+                    <g
+                      transform="translate(-136.45834350585938, -42.57500457763672)"
+                      style=""
+                      class="label"
+                    >
+                      <rect></rect>
+                      <foreignObject
+                        height="85.15000915527344"
+                        width="272.91668701171875"
+                        ><div
+                          xmlns="http://www.w3.org/1999/xhtml"
+                          style="
+                            display: table-cell;
+                            white-space: nowrap;
+                            line-height: 1.5;
+                            max-width: 200px;
+                            text-align: center;
+                          "
+                        >
+                          <span class="nodeLabel"><p>Person D</p></span>
+                        </div></foreignObject
+                      >
+                    </g>
+                  </g>
+                  <g
+                    transform="translate(1992.9584350585938, 148.15000915527344)"
+                    id="flowchart-E-4"
+                    class="node default"
+                  >
+                    <rect
+                      height="115.15000915527344"
+                      width="332.91668701171875"
+                      y="-57.57500457763672"
+                      x="-166.45834350585938"
+                      style="
+                        fill: #ffb !important;
+                        stroke: #333 !important;
+                        stroke-width: 2px !important;
+                      "
+                      class="basic label-container"
+                    ></rect>
+                    <g
+                      transform="translate(-136.45834350585938, -42.57500457763672)"
+                      style=""
+                      class="label"
+                    >
+                      <rect></rect>
+                      <foreignObject
+                        height="85.15000915527344"
+                        width="272.91668701171875"
+                        ><div
+                          xmlns="http://www.w3.org/1999/xhtml"
+                          style="
+                            display: table-cell;
+                            white-space: nowrap;
+                            line-height: 1.5;
+                            max-width: 200px;
+                            text-align: center;
+                          "
+                        >
+                          <span class="nodeLabel"><p>Transaction E</p></span>
+                        </div></foreignObject
+                      >
+                    </g>
+                  </g>
+                  <g
+                    transform="translate(2648.7918090820312, 230.72501373291016)"
+                    id="flowchart-F-5"
+                    class="node default"
+                  >
+                    <rect
+                      height="115.15000915527344"
+                      width="332.91668701171875"
+                      y="-57.57500457763672"
+                      x="-166.45834350585938"
+                      style="
+                        fill: #fbb !important;
+                        stroke: #333 !important;
+                        stroke-width: 2px !important;
+                      "
+                      class="basic label-container"
+                    ></rect>
+                    <g
+                      transform="translate(-136.45834350585938, -42.57500457763672)"
+                      style=""
+                      class="label"
+                    >
+                      <rect></rect>
+                      <foreignObject
+                        height="85.15000915527344"
+                        width="272.91668701171875"
+                        ><div
+                          xmlns="http://www.w3.org/1999/xhtml"
+                          style="
+                            display: table-cell;
+                            white-space: nowrap;
+                            line-height: 1.5;
+                            max-width: 200px;
+                            text-align: center;
+                          "
+                        >
+                          <span class="nodeLabel"><p>Location F</p></span>
+                        </div></foreignObject
+                      >
+                    </g>
+                  </g>
+                  <g
+                    transform="translate(2648.7918090820312, 65.57500457763672)"
+                    id="flowchart-G-6"
+                    class="node default"
+                  >
+                    <rect
+                      height="115.15000915527344"
+                      width="278.4499969482422"
+                      y="-57.57500457763672"
+                      x="-139.2249984741211"
+                      style="
+                        fill: #bff !important;
+                        stroke: #333 !important;
+                        stroke-width: 2px !important;
+                      "
+                      class="basic label-container"
+                    ></rect>
+                    <g
+                      transform="translate(-109.2249984741211, -42.57500457763672)"
+                      style=""
+                      class="label"
+                    >
+                      <rect></rect>
+                      <foreignObject
+                        height="85.15000915527344"
+                        width="218.4499969482422"
+                        ><div
+                          xmlns="http://www.w3.org/1999/xhtml"
+                          style="
+                            display: table-cell;
+                            white-space: nowrap;
+                            line-height: 1.5;
+                            max-width: 200px;
+                            text-align: center;
+                          "
+                        >
+                          <span class="nodeLabel"><p>Bank G</p></span>
+                        </div></foreignObject
+                      >
+                    </g>
+                  </g>
+                </g>
+              </g>
+            </g>
+          </svg>
+        </section>
+
+        <section>
+          <h2>But what is RAG?</h2>
+          <p class="fragment">R(etrieval) A(ugmented) G(eneration)</p>
+          <p class="fragment">
+            <strong>Putting relevant information into context</strong>
+          </p>
+        </section>
+
+        <section>
+          <p>
+            <strong>1.</strong> Find relevant information that can be used to
+            answer your question
+          </p>
+        </section>
+
+        <section>
+          <p>
+            <strong>2.</strong> Provide the language model with the retrieved
+            information alongside the question.
+          </p>
+        </section>
+
+        <section>
+          <p><strong>3.</strong> Get better answers.</p>
+        </section>
+
+        <section>
+          <p>Sounds familiar?</p>
+        </section>
+
+        <section data-background-image="deepresearch.png"></section>
+
+        <section>
+          <h2>So, what is relevant?</h2>
+          <p>What information do you give to the model?</p>
+        </section>
+
+        <section>
+          <p>There's many ways</p>
+          <p class="fragment">Deep Research probably uses keyword search</p>
+        </section>
+
+        <section>
+          <p>But RAG systems often use <strong>"semantic search"</strong></p>
+          <p class="fragment">Because it handles paraphrasing and synonyms</p>
+          <p class="fragment">And understands context and intent</p>
+        </section>
+
+        <section>
+          <h2>Semantic search</h2>
+          <p>Also called similarity search</p>
+        </section>
+
+        <section>
+          <p>
+            It works by converting text into numerical representations
+            (<strong>vectors</strong>) that can be compared
+          </p>
+          <div style="margin-top: 40px">
+            <svg id="text-to-vector-chart" width="800" height="200"></svg>
+          </div>
+        </section>
+
+        <section>
+          <p>These vectors are called <strong>embeddings</strong></p>
+          <p class="fragment">Because we're "embedding" language</p>
+          <p class="fragment">Into numerical space</p>
+          <p class="fragment">
+            While trying to preserve semantic relationships
+          </p>
+        </section>
+
+        <section>
+          <h2>Okay... Embeddings</h2>
+          <p class="fragment">How do we create them?</p>
+          <p class="fragment">How do we compare them?</p>
+        </section>
+
+        <section>
+          <p>
+            To create these vectors we use specialized<br />
+            <strong>"embedding models"</strong>
+          </p>
+        </section>
+
+        <section>
+          <p>
+            These models are <strong>trained for this task</strong> specifically
+          </p>
+        </section>
+
+        <section>
+          <pre><code data-trim data-noescape class="language-python">
+Anchor: "The cat sat on the mat" 
+Positive: "A feline rested on the rug" → Pull closer 
+Negative: "Stocks rose 3% today"       → Push apart
+          </code></pre>
+          <p>Maximize similarity for positive pairs, minimize for negative</p>
+        </section>
+
+        <section>
+          <p>
+            <strong>Positive pairs:</strong> paraphrases, similar sentences,
+            consecutive sentences
+          </p>
+          <p><strong>Negative pairs:</strong> random unrelated sentences</p>
+        </section>
+
+        <section>
+          <p><strong>There's more to it</strong></p>
+          <p class="fragment">
+            But we're not here to train our own embedding model
+          </p>
+        </section>
+
+        <section>
+          <p>
+            Let's see what this looks like using
+            <a
+              href="https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2"
+              >all-MiniLM-L6-v2</a
+            >
+          </p>
+          <pre><code data-trim data-noescape class="language-python">
+from sentence_transformers import SentenceTransformer
+
+model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+
+sentence = "The sun is shining"
+embedding = model.encode(sentence)
+            </code></pre>
+        </section>
+
+        <section>
+          <p>"The sun is shining" becomes...</p>
+        </section>
+
+        <section>
+          <pre class="unstyled">
+ 5.42898139e-04  1.02551401e-01  8.36703405e-02  9.39253941e-02
+ 2.07145736e-02 -1.12772360e-02  9.93586630e-02 -4.44610193e-02
+ 3.98165248e-02 -2.13668533e-02  2.09684577e-02 -3.66757251e-02
+ 7.11042061e-03  4.15845886e-02  1.01847239e-01  7.34366402e-02
+ 1.43970475e-02  4.65401914e-03  9.70691442e-03 -4.16579135e-02
+-2.30006799e-02 -2.27442160e-02 -2.73266062e-02 -1.22460043e-02
+-8.25940259e-03  6.72213510e-02 -2.77701933e-02  2.63383351e-02
+-6.12662174e-02 -1.37788551e-02  2.81139649e-02  5.81778679e-03
+... etc ... ...
+
+384 dimensions
+            </pre
+          >
+        </section>
+
+        <section>
+          <p>
+            Great. Now that we have our numerical representation,
+            <strong>how do we compare it to others?</strong>
+          </p>
+        </section>
+
+        <section>
+          <p>
+            A vector can be thought of as a list of numbers, or a coordinate or
+            <strong>direction in a space</strong>
+          </p>
+        </section>
+
+        <section>
+          <p>
+            Embedding models are trained so that vectors with
+            <strong>similar direction</strong> are semantically similar
+          </p>
+        </section>
+
+        <section>
+          <p>
+            Why <strong>compare directions</strong> and
+            <strong>not distance</strong> between coordinates?
+          </p>
+          <div style="display: flex; justify-content: space-around">
+            <svg id="angle-chart" width="300" height="300"></svg>
+            <svg id="distance-chart" width="300" height="300"></svg>
+          </div>
+        </section>
+
+        <section>
+          <p><strong>Because high-dimensional geometry is weird</strong></p>
+          <p>All points become equidistant with Euclidean distance</p>
+          <div style="margin-top: 40px">
+            <svg id="dimension-distance-chart" width="900" height="300"></svg>
+          </div>
+        </section>
+
+        <section>
+          <p>
+            So most of the times, we compare vectors by their angles. By
+            calculating <strong>Cosine Similarity</strong>
+          </p>
+        </section>
+
+        <section>
+          <p>Let's see what that looks like</p>
+          <p class="fragment">
+            <strong>384 dimensions</strong> is hard to visualize though...
+          </p>
+          <p class="fragment">
+            So let's imagine this in <strong>2 dimensions</strong>
+          </p>
+        </section>
+
+        <section class="centered">
+          <svg width="600" height="600">
+            <g
+              class="axis"
+              transform="translate(0, 300)"
+              fill="none"
+              font-size="10"
+              font-family="sans-serif"
+              text-anchor="middle"
+            >
+              <path
+                class="domain"
+                stroke="currentColor"
+                d="M10.5,6V0.5H590.5V6"
+              ></path>
+              <g class="tick" opacity="1" transform="translate(10.5,0)">
+                <line stroke="currentColor" y2="6"></line>
+                <text fill="currentColor" y="9" dy="0.71em">−1.0</text>
+              </g>
+              <g
+                class="tick"
+                opacity="1"
+                transform="translate(68.49999999999999,0)"
+              >
+                <line stroke="currentColor" y2="6"></line>
+                <text fill="currentColor" y="9" dy="0.71em">−0.8</text>
+              </g>
+              <g class="tick" opacity="1" transform="translate(126.5,0)">
+                <line stroke="currentColor" y2="6"></line>
+                <text fill="currentColor" y="9" dy="0.71em">−0.6</text>
+              </g>
+              <g class="tick" opacity="1" transform="translate(184.5,0)">
+                <line stroke="currentColor" y2="6"></line>
+                <text fill="currentColor" y="9" dy="0.71em">−0.4</text>
+              </g>
+              <g class="tick" opacity="1" transform="translate(242.5,0)">
+                <line stroke="currentColor" y2="6"></line>
+                <text fill="currentColor" y="9" dy="0.71em">−0.2</text>
+              </g>
+              <g class="tick" opacity="1" transform="translate(300.5,0)">
+                <line stroke="currentColor" y2="6"></line>
+                <text fill="currentColor" y="9" dy="0.71em">0.0</text>
+              </g>
+              <g class="tick" opacity="1" transform="translate(358.5,0)">
+                <line stroke="currentColor" y2="6"></line>
+                <text fill="currentColor" y="9" dy="0.71em">0.2</text>
+              </g>
+              <g class="tick" opacity="1" transform="translate(416.5,0)">
+                <line stroke="currentColor" y2="6"></line>
+                <text fill="currentColor" y="9" dy="0.71em">0.4</text>
+              </g>
+              <g class="tick" opacity="1" transform="translate(474.5,0)">
+                <line stroke="currentColor" y2="6"></line>
+                <text fill="currentColor" y="9" dy="0.71em">0.6</text>
+              </g>
+              <g class="tick" opacity="1" transform="translate(532.5,0)">
+                <line stroke="currentColor" y2="6"></line>
+                <text fill="currentColor" y="9" dy="0.71em">0.8</text>
+              </g>
+              <g class="tick" opacity="1" transform="translate(590.5,0)">
+                <line stroke="currentColor" y2="6"></line>
+                <text fill="currentColor" y="9" dy="0.71em">1.0</text>
+              </g>
+            </g>
+            <g
+              class="axis"
+              transform="translate(300, 0)"
+              fill="none"
+              font-size="10"
+              font-family="sans-serif"
+              text-anchor="end"
+            >
+              <path
+                class="domain"
+                stroke="currentColor"
+                d="M-6,590.5H0.5V10.5H-6"
+              ></path>
+              <g class="tick" opacity="1" transform="translate(0,590.5)">
+                <line stroke="currentColor" x2="-6"></line>
+                <text fill="currentColor" x="-9" dy="0.32em">−1.0</text>
+              </g>
+              <g class="tick" opacity="1" transform="translate(0,532.5)">
+                <line stroke="currentColor" x2="-6"></line>
+                <text fill="currentColor" x="-9" dy="0.32em">−0.8</text>
+              </g>
+              <g class="tick" opacity="1" transform="translate(0,474.5)">
+                <line stroke="currentColor" x2="-6"></line>
+                <text fill="currentColor" x="-9" dy="0.32em">−0.6</text>
+              </g>
+              <g class="tick" opacity="1" transform="translate(0,416.5)">
+                <line stroke="currentColor" x2="-6"></line>
+                <text fill="currentColor" x="-9" dy="0.32em">−0.4</text>
+              </g>
+              <g class="tick" opacity="1" transform="translate(0,358.5)">
+                <line stroke="currentColor" x2="-6"></line>
+                <text fill="currentColor" x="-9" dy="0.32em">−0.2</text>
+              </g>
+              <g class="tick" opacity="1" transform="translate(0,300.5)">
+                <line stroke="currentColor" x2="-6"></line>
+                <text fill="currentColor" x="-9" dy="0.32em">0.0</text>
+              </g>
+              <g class="tick" opacity="1" transform="translate(0,242.5)">
+                <line stroke="currentColor" x2="-6"></line>
+                <text fill="currentColor" x="-9" dy="0.32em">0.2</text>
+              </g>
+              <g
+                class="tick"
+                opacity="1"
+                transform="translate(0,184.50000000000003)"
+              >
+                <line stroke="currentColor" x2="-6"></line>
+                <text fill="currentColor" x="-9" dy="0.32em">0.4</text>
+              </g>
+              <g
+                class="tick"
+                opacity="1"
+                transform="translate(0,126.49999999999997)"
+              >
+                <line stroke="currentColor" x2="-6"></line>
+                <text fill="currentColor" x="-9" dy="0.32em">0.6</text>
+              </g>
+              <g
+                class="tick"
+                opacity="1"
+                transform="translate(0,68.49999999999999)"
+              >
+                <line stroke="currentColor" x2="-6"></line>
+                <text fill="currentColor" x="-9" dy="0.32em">0.8</text>
+              </g>
+              <g class="tick" opacity="1" transform="translate(0,10.5)">
+                <line stroke="currentColor" x2="-6"></line>
+                <text fill="currentColor" x="-9" dy="0.32em">1.0</text>
+              </g>
+            </g>
+            <g class="fragment">
+              <circle
+                class="point"
+                cx="343.5"
+                cy="91.2"
+                r="6"
+                fill="#4299e1"
+              ></circle>
+              <line
+                x1="300"
+                y1="300"
+                x2="343.5"
+                y2="91.2"
+                stroke="#4299e1"
+                stroke-width="2"
+              ></line>
+              <text
+                x="301.75"
+                y="185.60000000000005"
+                style="font-size: 1.5rem"
+                fill="#4299e1"
+              >
+                Vector A
+              </text>
+              <text x="353.5" y="81.2" style="font-size: 2rem">
+                (0.15, 0.72)
+              </text>
+            </g>
+            <g class="fragment">
+              <circle
+                class="point"
+                cx="447.9"
+                cy="175.3"
+                r="6"
+                fill="#48bb78"
+              ></circle>
+              <line
+                x1="300"
+                y1="300"
+                x2="447.9"
+                y2="175.3"
+                stroke="#48bb78"
+                stroke-width="2"
+              ></line>
+              <text
+                x="383.95"
+                y="227.64999999999998"
+                style="font-size: 1.5rem"
+                fill="#48bb78"
+              >
+                Vector B
+              </text>
+              <text x="457.9" y="165.3" style="font-size: 2rem">
+                (0.51, 0.43)
+              </text>
+            </g>
+            <g class="fragment">
+              <path
+                d="M16.316,-78.318A80,80,0,0,1,61.162,-51.568L57.339,-48.345A75,75,0,0,0,15.297,-73.424Z"
+                transform="translate(300, 300)"
+                fill="#48bb78"
+              ></path>
+              <text
+                x="330"
+                y="381.5872618474355"
+                style="font-size: 1.5rem"
+                fill="#48bb78"
+                text-anchor="left"
+              >
+                θ = 38.1°
+              </text>
+            </g>
+            <g class="fragment">
+              <text
+                x="330"
+                y="540"
+                style="font-size: 2rem"
+                text-anchor="left"
+                fill="#48bb78"
+              >
+                Similarity = 0.787
+              </text>
+              <text
+                x="330"
+                y="500"
+                style="font-size: 1.8rem"
+                text-anchor="left"
+              >
+                cos(θ) = A·B / |A|·|B|
+              </text>
+            </g>
+          </svg>
+        </section>
+
+        <section>
+          <p>So to come back to <strong>"The sun is shining"</strong>...</p>
+        </section>
+
+        <section>
+          <table class="align-right">
+            <tr>
+              <th>Text</th>
+              <th>Similarity</th>
+            </tr>
+            <tr>
+              <td>Bring an umbrella</td>
+              <td>0.320</td>
+            </tr>
+            <tr>
+              <td>The weather is great</td>
+              <td>0.418</td>
+            </tr>
+            <tr>
+              <td>It's daytime</td>
+              <td>0.622</td>
+            </tr>
+          </table>
+        </section>
+
+        <section>
+          <p>Great, we can find similar things!</p>
+          <p class="fragment">
+            But... <strong>how do we get the things?</strong>
+          </p>
+        </section>
+
+        <section>
+          <h2>GraphRAG tools</h2>
+          <ol>
+            <li>
+              <a href="https://github.com/microsoft/graphrag" target="_blank"
+                >github.com/microsoft/graphrag</a
+              >
+              <br />
+              <a
+                href="https://github.com/noworneverev/graphrag-visualizer"
+                target="_blank"
+                >github.com/noworneverev/graphrag-visualizer</a
+              >
+              <small>Widely adopted, popular</small>
+            </li>
+            <li>
+              <a
+                href="https://github.com/gusye1234/nano-graphrag"
+                target="_blank"
+                >github.com/gusye1234/nano-graphrag</a
+              >
+              <br />
+              <small>Small, easy to hack on</small>
+            </li>
+            <li>
+              <a href="https://llm-graph-builder.neo4jlabs.com" target="_blank"
+                >llm-graph-builder.neo4jlabs.com</a
+              >
+              <br />
+              <a
+                href="https://github.com/neo4j/neo4j-graphrag-python"
+                target="_blank"
+                >github.com/neo4j/neo4j-graphrag-python</a
+              >
+              <small>Neo4j ecosystem</small>
+            </li>
+          </ol>
+        </section>
+
+        <section>
+          <h2>Parsing documents</h2>
+          <p>Language model ❤️ markdown</p>
+          <ol>
+            <li>
+              <a
+                href="https://github.com/docling-project/docling"
+                target="_blank"
+                >github.com/docling-project/docling</a
+              >
+              <br />
+              <small>IBM Research</small>
+            </li>
+            <li>
+              <a href="https://github.com/microsoft/markitdown" target="_blank"
+                >github.com/microsoft/markitdown</a
+              >
+              <br />
+              <small>Microsoft</small>
+            </li>
+          </ol>
+        </section>
+      </div>
+    </div>
+
+    <script type="module">
+      import "https://cdn.jsdelivr.net/npm/reveal.js@5.2.1/dist/reveal.min.js";
+      import "https://cdn.jsdelivr.net/npm/reveal.js@5.2.1/plugin/highlight/highlight.js";
+      import "https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js";
+
+      async function initialize_graph() {
+        const response = await fetch(
+          "https://static.observableusercontent.com/files/e3680d5f766e85edde560c9c31a6dba2ddfcf2f66e1dced4afa18d8040f1f205e0bde1b8b234d866373f2bfc5806fafc47e244c5c9f48b60aaa1917c1b80fcb7?response-content-disposition=attachment%3Bfilename*%3DUTF-8%27%27graph.json",
+        );
+
+        const data = await response.json();
+
+        // Specify the dimensions of the chart.
+        const width = 700;
+        const height = 700;
+
+        // Specify the color scale.
+        const color = d3.scaleOrdinal(d3.schemeCategory10);
+
+        // The force simulation mutates links and nodes, so create a copy
+        // so that re-evaluating this cell produces the same result.
+        const links = data.links.map((d) => ({ ...d }));
+        const nodes = data.nodes.map((d) => ({ ...d }));
+
+        // Create the SVG container.
+        const svg = d3
+          .select("#graph")
+          .append("svg")
+          .attr("width", width)
+          .attr("height", height)
+          .attr("viewBox", [-width / 2, -height / 2, width, height]);
+
+        // Add a line for each link, and a circle for each node.
+        const link = svg
+          .append("g")
+          .attr("stroke", "#999")
+          .attr("stroke-opacity", 0.6)
+          .selectAll("line")
+          .data(links)
+          .join("line")
+          .attr("stroke-width", (d) => Math.sqrt(d.value));
+
+        const node = svg
+          .append("g")
+          .attr("stroke", "#fff")
+          .attr("stroke-width", 1.5)
+          .selectAll("circle")
+          .data(nodes)
+          .join("circle")
+          .attr("r", 5)
+          .attr("fill", (d) => color(d.group));
+
+        Reveal.on("fragmentshown", function (event) {
+          const fragment = event.fragment;
+          if (fragment.id === "graph" && !fragment.dataset.initialized) {
+            // Create a simulation with several forces.
+            const simulation = d3
+              .forceSimulation(nodes)
+              .force(
+                "link",
+                d3.forceLink(links).id((d) => d.id),
+              )
+              .force("charge", d3.forceManyBody())
+              .force("x", d3.forceX())
+              .force("y", d3.forceY());
+            // Set the position attributes of links and nodes each time the simulation ticks.
+            simulation.on("tick", () => {
+              link
+                .attr("x1", (d) => d.source.x)
+                .attr("y1", (d) => d.source.y)
+                .attr("x2", (d) => d.target.x)
+                .attr("y2", (d) => d.target.y);
+
+              node.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
+            });
+
+            fragment.dataset.initialized = "true";
+          }
+        });
+      }
+
+      await initialize_graph();
+
+      // Initialize token probability chart
+      const tokenProbSvg = d3.select("#token-prob-chart");
+      const tokenWidth = 800;
+      const tokenHeight = 300;
+      const tokenMargin = { top: 40, right: 40, bottom: 60, left: 60 };
+      const tokenChartWidth = tokenWidth - tokenMargin.left - tokenMargin.right;
+      const tokenChartHeight =
+        tokenHeight - tokenMargin.top - tokenMargin.bottom;
+
+      const tokenG = tokenProbSvg
+        .append("g")
+        .attr(
+          "transform",
+          `translate(${tokenMargin.left}, ${tokenMargin.top})`,
+        );
+
+      // Sample token data with probabilities for next token after "over"
+      const tokenData = [
+        { token: "the", prob: 0.35 },
+        { token: "a", prob: 0.22 },
+        { token: "to", prob: 0.15 },
+        { token: "and", prob: 0.12 },
+        { token: "it", prob: 0.08 },
+        { token: "there", prob: 0.05 },
+        { token: "...", prob: 0.03 },
+      ];
+
+      // Create scales
+      const tokenXScale = d3
+        .scaleBand()
+        .domain(tokenData.map((d) => d.token))
+        .range([0, tokenChartWidth])
+        .padding(0.2);
+
+      const tokenYScale = d3
+        .scaleLinear()
+        .domain([0, 0.5])
+        .range([tokenChartHeight, 0]);
+
+      // Add bars
+      tokenG
+        .selectAll("rect")
+        .data(tokenData)
+        .enter()
+        .append("rect")
+        .attr("x", (d) => tokenXScale(d.token))
+        .attr("y", (d) => tokenYScale(d.prob))
+        .attr("width", tokenXScale.bandwidth())
+        .attr("height", (d) => tokenChartHeight - tokenYScale(d.prob))
+        .attr("fill", "#4299e1")
+        .attr("stroke", "#000")
+        .attr("stroke-width", 1.5);
+
+      // Add x-axis
+      const tokenXAxis = tokenG
+        .append("g")
+        .attr("transform", `translate(0, ${tokenChartHeight})`)
+        .call(d3.axisBottom(tokenXScale));
+
+      tokenXAxis.selectAll("text").attr("font-size", "32px");
+
+      // Add y-axis
+      const tokenYAxis = tokenG
+        .append("g")
+        .call(d3.axisLeft(tokenYScale).ticks(5).tickFormat(d3.format(".0%")));
+
+      tokenYAxis.selectAll("text").attr("font-size", "16px");
+
+      tokenYAxis
+        .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("x", -tokenChartHeight / 2)
+        .attr("y", -45)
+        .attr("fill", "currentColor")
+        .attr("text-anchor", "middle")
+        .attr("font-size", "18px")
+        .text("Probability");
+
+      // Initialize constrained token chart (same structure as token chart)
+      const constrainedTokenSvg = d3.select("#constrained-token-chart");
+      const constrainedTokenG = constrainedTokenSvg
+        .append("g")
+        .attr(
+          "transform",
+          `translate(${tokenMargin.left}, ${tokenMargin.top})`,
+        );
+
+      // Only valid tokens for closing or continuing the JSON object
+      const constrainedTokenData = [
+        { token: "}", prob: 0.5 },
+        { token: ",", prob: 0.35 },
+        { token: "␣", prob: 0.15 },
+      ];
+
+      // Create scales for constrained chart
+      const constrainedXScale = d3
+        .scaleBand()
+        .domain(constrainedTokenData.map((d) => d.token))
+        .range([0, tokenChartWidth])
+        .padding(0.2);
+
+      const constrainedYScale = d3
+        .scaleLinear()
+        .domain([0, 1.0])
+        .range([tokenChartHeight, 0]);
+
+      // Add bars
+      constrainedTokenG
+        .selectAll("rect")
+        .data(constrainedTokenData)
+        .enter()
+        .append("rect")
+        .attr("x", (d) => constrainedXScale(d.token))
+        .attr("y", (d) => constrainedYScale(d.prob))
+        .attr("width", constrainedXScale.bandwidth())
+        .attr("height", (d) => tokenChartHeight - constrainedYScale(d.prob))
+        .attr("fill", "#4299e1")
+        .attr("stroke", "#000")
+        .attr("stroke-width", 1.5);
+
+      // Add x-axis
+      const constrainedXAxis = constrainedTokenG
+        .append("g")
+        .attr("transform", `translate(0, ${tokenChartHeight})`)
+        .call(d3.axisBottom(constrainedXScale));
+
+      constrainedXAxis.selectAll("text").attr("font-size", "32px");
+
+      // Add y-axis
+      const constrainedYAxis = constrainedTokenG
+        .append("g")
+        .call(
+          d3.axisLeft(constrainedYScale).ticks(5).tickFormat(d3.format(".0%")),
+        );
+
+      constrainedYAxis.selectAll("text").attr("font-size", "16px");
+
+      constrainedYAxis
+        .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("x", -tokenChartHeight / 2)
+        .attr("y", -45)
+        .attr("fill", "currentColor")
+        .attr("text-anchor", "middle")
+        .attr("font-size", "18px")
+        .text("Probability");
+
+      // Initialize angle chart
+      const angleSvg = d3.select("#angle-chart");
+      const angleWidth = 300;
+      const angleHeight = 300;
+      const angleG = angleSvg
+        .append("g")
+        .attr("transform", `translate(40, ${angleHeight * 0.7})`);
+
+      // Draw vectors for angle - scale to use most of the canvas
+      const scale = angleWidth * 0.8;
+      angleG
+        .append("line")
+        .attr("x1", 0)
+        .attr("y1", 0)
+        .attr("x2", scale)
+        .attr("y2", 0)
+        .attr("stroke", "#4299e1")
+        .attr("stroke-width", 4);
+
+      angleG
+        .append("line")
+        .attr("x1", 0)
+        .attr("y1", 0)
+        .attr("x2", scale * Math.cos(Math.PI / 6))
+        .attr("y2", -scale * Math.sin(Math.PI / 6))
+        .attr("stroke", "#48bb78")
+        .attr("stroke-width", 4);
+
+      // Draw arc for angle (from horizontal blue to upper green vector)
+      const arcPath = d3
+        .arc()
+        .innerRadius(60)
+        .outerRadius(60)
+        .startAngle(Math.PI / 3)
+        .endAngle(Math.PI / 2);
+
+      angleG
+        .append("path")
+        .attr("d", arcPath)
+        .attr("fill", "none")
+        .attr("stroke", "#000")
+        .attr("stroke-width", 2.5);
+
+      // Add origin point
+      angleG
+        .append("circle")
+        .attr("cx", 0)
+        .attr("cy", 0)
+        .attr("r", 6)
+        .attr("fill", "#000");
+
+      // Initialize distance chart
+      const distSvg = d3.select("#distance-chart");
+      const distWidth = 300;
+      const distHeight = 300;
+      const distG = distSvg
+        .append("g")
+        .attr("transform", `translate(${distWidth / 2}, ${distHeight / 2})`);
+
+      // Draw points for distance - scale to use most of the canvas
+      const p1 = { x: -distWidth * 0.35, y: distHeight * 0.15 };
+      const p2 = { x: distWidth * 0.35, y: -distHeight * 0.2 };
+
+      distG
+        .append("circle")
+        .attr("cx", p1.x)
+        .attr("cy", p1.y)
+        .attr("r", 10)
+        .attr("fill", "#4299e1");
+
+      distG
+        .append("circle")
+        .attr("cx", p2.x)
+        .attr("cy", p2.y)
+        .attr("r", 10)
+        .attr("fill", "#48bb78");
+
+      // Draw distance line
+      distG
+        .append("line")
+        .attr("x1", p1.x)
+        .attr("y1", p1.y)
+        .attr("x2", p2.x)
+        .attr("y2", p2.y)
+        .attr("stroke", "#000")
+        .attr("stroke-width", 2.5)
+        .attr("stroke-dasharray", "5,3");
+
+      // Initialize text-to-vector chart
+      const textVectorSvg = d3.select("#text-to-vector-chart");
+      const textVectorWidth = 800;
+      const textVectorHeight = 200;
+      const textVectorG = textVectorSvg
+        .append("g")
+        .attr("transform", `translate(50, ${textVectorHeight / 2})`);
+
+      // Draw text on the left
+      textVectorG
+        .append("text")
+        .attr("x", -20)
+        .attr("y", 10)
+        .attr("text-anchor", "start")
+        .attr("font-size", "36px")
+        .attr("font-weight", "500")
+        .attr("fill", "currentColor")
+        .text('"semantic search"');
+
+      // Draw arrow in the middle
+      const arrowStartX = 280;
+      const arrowEndX = 380;
+      const arrowY = 0;
+
+      textVectorG
+        .append("line")
+        .attr("x1", arrowStartX)
+        .attr("y1", arrowY)
+        .attr("x2", arrowEndX)
+        .attr("y2", arrowY)
+        .attr("stroke", "#000")
+        .attr("stroke-width", 3);
+
+      // Arrow head
+      textVectorG
+        .append("polygon")
+        .attr(
+          "points",
+          `${arrowEndX},${arrowY} ${arrowEndX - 12},${arrowY - 8} ${arrowEndX - 12},${arrowY + 8}`,
+        )
+        .attr("fill", "#000");
+
+      // Draw vector array on the right
+      const vectorStartX = 410;
+      const vectorData = [0.42, -0.18, 0.91, -0.33, 0.67];
+      const boxWidth = 55;
+      const boxHeight = 50;
+
+      vectorData.forEach((value, i) => {
+        const x = vectorStartX + i * (boxWidth + 5);
+
+        // Draw box
+        textVectorG
+          .append("rect")
+          .attr("x", x)
+          .attr("y", -boxHeight / 2)
+          .attr("width", boxWidth)
+          .attr("height", boxHeight)
+          .attr("fill", "#4299e1")
+          .attr("stroke", "#000")
+          .attr("stroke-width", 2);
+
+        // Draw number
+        textVectorG
+          .append("text")
+          .attr("x", x + boxWidth / 2)
+          .attr("y", 5)
+          .attr("text-anchor", "middle")
+          .attr("font-size", "16px")
+          .attr("font-weight", "500")
+          .attr("fill", "#fff")
+          .text(value.toFixed(2));
+      });
+
+      // Add ellipsis after vector
+      textVectorG
+        .append("text")
+        .attr("x", vectorStartX + vectorData.length * (boxWidth + 5) + 10)
+        .attr("y", 5)
+        .attr("text-anchor", "start")
+        .attr("font-size", "32px")
+        .attr("font-weight", "bold")
+        .attr("fill", "currentColor")
+        .text("...");
+
+      // Initialize dimension-distance chart
+      const dimDistSvg = d3.select("#dimension-distance-chart");
+      const dimWidth = 900;
+      const dimHeight = 300;
+      const margin = { top: 20, right: 30, bottom: 50, left: 95 };
+      const chartWidth = dimWidth - margin.left - margin.right;
+      const chartHeight = dimHeight - margin.top - margin.bottom;
+
+      const dimG = dimDistSvg
+        .append("g")
+        .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+      // Simulate distance distributions for different dimensions
+      function generateDistances(dimensions, numPoints = 100000) {
+        const distances = [];
+        for (let i = 0; i < numPoints; i++) {
+          // Generate two random points in n-dimensional space
+          let sumSq = 0;
+          for (let d = 0; d < dimensions; d++) {
+            const diff = Math.random() - Math.random();
+            sumSq += diff * diff;
+          }
+          // Normalize by sqrt(dimensions) to account for dimension scaling
+          distances.push(Math.sqrt(sumSq / dimensions));
+        }
+        return distances;
+      }
+
+      // Calculate histogram for each dimension
+      const dims = [2, 20, 100, 500];
+      const histData = dims.map((dim) => {
+        const distances = generateDistances(dim);
+        const bins = d3
+          .bin()
+          .domain([0, d3.max(distances)])
+          .thresholds(30)(distances);
+        return { dim, bins };
+      });
+
+      // Create scales
+      const xScale = d3
+        .scaleLinear()
+        .domain([0, d3.max(histData.flatMap((h) => h.bins.map((b) => b.x1)))])
+        .range([0, chartWidth]);
+
+      const yScale = d3
+        .scaleLinear()
+        .domain([
+          0,
+          d3.max(histData.flatMap((h) => h.bins.map((b) => b.length))),
+        ])
+        .range([chartHeight, 0]);
+
+      // Color scale for different dimensions
+      const colorScale = d3
+        .scaleOrdinal()
+        .domain(dims)
+        .range(["#4299e1", "#48bb78", "#ed8936", "#9f7aea"]);
+
+      // Draw histograms as lines
+      histData.forEach((data) => {
+        const line = d3
+          .line()
+          .x((d) => xScale((d.x0 + d.x1) / 2))
+          .y((d) => yScale(d.length))
+          .curve(d3.curveMonotoneX);
+
+        dimG
+          .append("path")
+          .datum(data.bins)
+          .attr("fill", "none")
+          .attr("stroke", colorScale(data.dim))
+          .attr("stroke-width", 3)
+          .attr("d", line);
+      });
+
+      // Add axes
+      const xAxis = dimG
+        .append("g")
+        .attr("transform", `translate(0, ${chartHeight})`)
+        .call(d3.axisBottom(xScale));
+
+      xAxis.selectAll("text").attr("font-size", "16px");
+
+      xAxis
+        .append("text")
+        .attr("x", chartWidth / 2)
+        .attr("y", 40)
+        .attr("fill", "currentColor")
+        .attr("text-anchor", "middle")
+        .attr("font-size", "18px")
+        .text("Euclidean Distance");
+
+      const yAxis = dimG.append("g").call(d3.axisLeft(yScale).ticks(5));
+
+      yAxis.selectAll("text").attr("font-size", "16px");
+
+      yAxis
+        .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("x", -chartHeight / 2)
+        .attr("y", -75)
+        .attr("fill", "currentColor")
+        .attr("text-anchor", "middle")
+        .attr("font-size", "18px")
+        .text("Frequency");
+
+      // Add legend
+      const legend = dimG
+        .append("g")
+        .attr("transform", `translate(${chartWidth - 120}, 20)`);
+
+      dims.forEach((dim, i) => {
+        const lg = legend
+          .append("g")
+          .attr("transform", `translate(0, ${i * 25})`);
+
+        lg.append("line")
+          .attr("x1", 0)
+          .attr("x2", 30)
+          .attr("y1", 0)
+          .attr("y2", 0)
+          .attr("stroke", colorScale(dim))
+          .attr("stroke-width", 3);
+
+        lg.append("text")
+          .attr("x", 38)
+          .attr("y", 5)
+          .attr("fill", "currentColor")
+          .attr("font-size", "18px")
+          .text(`${dim}D`);
+      });
+
+      Reveal.initialize({
+        history: true,
+        plugins: [RevealHighlight],
+      });
+    </script>
+  </body>
+</html>
