@@ -579,6 +579,180 @@ embedding = model.encode(sentence)
           </p>
         </section>
 
+        <!-- CLUSTERING SECTION -->
+
+        <section>
+          <p>We have a bunch of documents, embedded as vectors...</p>
+          <p class="fragment">
+            <strong>Can we find natural groupings?</strong>
+          </p>
+        </section>
+
+        <section>
+          <p>
+            Imagine plotting all our embeddings in
+            <strong>2D space</strong>
+          </p>
+          <p class="fragment">Some points cluster together, others float alone</p>
+          <div style="margin-top: 30px">
+            <svg
+              id="cluster-scatter"
+              width="700"
+              height="400"
+              style="display: block; margin: 0 auto"
+            ></svg>
+          </div>
+        </section>
+
+        <section>
+          <p>
+            We want to find these groups
+            <strong>automatically</strong>
+          </p>
+          <p class="fragment">
+            Without telling the algorithm how many to expect
+          </p>
+        </section>
+
+        <section>
+          <p>This is called <strong>clustering</strong></p>
+          <p class="fragment">And <strong>HDBSCAN</strong> is great at it</p>
+          <p class="fragment" style="font-size: 1.2rem; color: #888">
+            (Hierarchical Density-Based Spatial Clustering of Applications with Noise)
+          </p>
+        </section>
+
+        <section>
+          <p>The core idea: <strong>density neighborhoods</strong></p>
+          <p class="fragment">
+            Draw a circle around each point
+          </p>
+          <p class="fragment">
+            Dense areas = circles overlap and merge
+          </p>
+          <p class="fragment">
+            Sparse areas = circles stay small, points are isolated
+          </p>
+        </section>
+
+        <section>
+          <p>
+            Let's see this in action
+          </p>
+          <div style="margin-top: 30px">
+            <svg
+              id="hdbscan-demo"
+              width="700"
+              height="400"
+              style="display: block; margin: 0 auto"
+            ></svg>
+            <div style="margin-top: 20px; text-align: center">
+              <span class="fragment" data-fragment-index="1" style="font-size: 1.2rem; color: #666; margin: 0 1rem">Points</span>
+              <span class="fragment" data-fragment-index="2" style="font-size: 1.2rem; color: #666; margin: 0 1rem">→ Density</span>
+              <span class="fragment" data-fragment-index="3" style="font-size: 1.2rem; color: #666; margin: 0 1rem">→ Clusters</span>
+              <span class="fragment" data-fragment-index="4" style="font-size: 1.2rem; color: #666; margin: 0 1rem">→ Noise</span>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <p>
+            Now let's apply this to
+            <strong>text embeddings</strong>
+          </p>
+        </section>
+
+        <section>
+          <pre><code data-trim data-noescape class="language-python">
+from sentence_transformers import SentenceTransformer
+import hdbscan
+
+model = SentenceTransformer("all-MiniLM-L6-v2")
+
+# Embed our documents
+embeddings = model.encode(documents)
+
+# Cluster the embeddings
+clusterer = hdbscan.HDBSCAN(min_cluster_size=5)
+clusterer.fit(embeddings)
+
+# Labels: -1 = noise, 0, 1, 2... = cluster IDs
+print(clusterer.labels_)
+          </code></pre>
+        </section>
+
+        <section>
+          <p>
+            One key parameter:
+            <strong>min_cluster_size</strong>
+          </p>
+          <p class="fragment">
+            The smallest group that counts as a cluster
+          </p>
+          <p class="fragment">
+            Too small → too many tiny clusters
+          </p>
+          <p class="fragment">
+            Too large → you miss real groups
+          </p>
+        </section>
+
+        <section>
+          <p>What can we do with clusters?</p>
+        </section>
+
+        <section>
+          <ul>
+            <li class="fragment">
+              <strong>Topic discovery</strong> — what are people talking about?
+            </li>
+            <li class="fragment">
+              <strong>Anomaly detection</strong> — what doesn't fit any group?
+            </li>
+            <li class="fragment">
+              <strong>Organization</strong> — automatically sort documents
+            </li>
+            <li class="fragment">
+              <strong>Summarization</strong> — summarize each cluster
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <p>
+            The noise points (label <code>-1</code>) are useful too
+          </p>
+          <p class="fragment">
+            They're the <strong>outliers</strong> — things that don't fit
+          </p>
+        </section>
+
+        <section>
+          <p>
+            <strong>One challenge:</strong> embeddings are
+            <strong>high-dimensional</strong>
+          </p>
+          <p class="fragment">
+            Hard to visualize clusters in 384 dimensions
+          </p>
+        </section>
+
+        <section>
+          <p>How do we actually <em>see</em> our clusters?</p>
+          <p class="fragment">
+            <strong>We need to project them down to 2D or 3D</strong>
+          </p>
+        </section>
+
+        <section>
+          <p>
+            But that's a story for
+            <strong>next...</strong>
+          </p>
+        </section>
+
+        <!-- END CLUSTERING SECTION -->
+
         <section>
           <h2>Tools to play with</h2>
           <ol>
@@ -1184,9 +1358,325 @@ embedding = model.encode(sentence)
           .text(`${dim}D`);
       });
 
+      // ============================================================
+      // CLUSTERING VISUALIZATIONS
+      // ============================================================
+
+      // Helper: generate clustered 2D points
+      function generateClusteredPoints(
+        clusters,
+        pointsPerCluster,
+        noisePoints
+      ) {
+        const points = [];
+        const colors = [
+          '#4299e1',
+          '#48bb78',
+          '#ed8936',
+          '#9f7aea',
+          '#f56565',
+          '#38b2ac',
+        ];
+
+        clusters.forEach((cluster, ci) => {
+          for (let i = 0; i < pointsPerCluster; i++) {
+            points.push({
+              x: cluster.cx + (Math.random() - 0.5) * cluster.spread,
+              y: cluster.cy + (Math.random() - 0.5) * cluster.spread,
+              cluster: ci,
+              type: 'cluster',
+            });
+          }
+        });
+
+        for (let i = 0; i < noisePoints; i++) {
+          points.push({
+            x: (Math.random() - 0.5) * 10,
+            y: (Math.random() - 0.5) * 7,
+            cluster: -1,
+            type: 'noise',
+          });
+        }
+
+        return points;
+      }
+
+      const clusterColors = [
+        '#4299e1',
+        '#48bb78',
+        '#ed8936',
+        '#9f7aea',
+        '#f56565',
+        '#38b2ac',
+      ];
+
+      // 1. CLUSTER SCATTER - showing points in 2D space
+      ;(function () {
+        const svg = d3.select('#cluster-scatter');
+        const width = 700;
+        const height = 400;
+        const margin = 20;
+
+        const g = svg
+          .append('g')
+          .attr('transform', `translate(${width / 2}, ${height / 2})`);
+
+        const xScale = d3.scaleLinear().domain([-5, 5]).range([-width / 2 + margin, width / 2 - margin]);
+        const yScale = d3.scaleLinear().domain([-4, 4]).range([height / 2 - margin, -(height / 2 - margin)]);
+
+        const clusterDefs = [
+          { cx: -2.5, cy: 1.2, spread: 1.2 },
+          { cx: 2, cy: 1.5, spread: 1.0 },
+          { cx: 0, cy: -1.5, spread: 1.5 },
+          { cx: 3.5, cy: -1.8, spread: 0.8 },
+        ];
+        const points = generateClusteredPoints(clusterDefs, 15, 8);
+
+        // Draw points - initially all same color
+        g.selectAll('circle')
+          .data(points)
+          .join('circle')
+          .attr('cx', (d) => xScale(d.x))
+          .attr('cy', (d) => yScale(d.y))
+          .attr('r', 6)
+          .attr('fill', '#999')
+          .attr('opacity', 0.7);
+
+        // Add question marks for clusters
+        g.append('text')
+          .attr('x', xScale(-2.5))
+          .attr('y', yScale(1.2) - 25)
+          .attr('text-anchor', 'middle')
+          .attr('font-size', '16px')
+          .attr('fill', '#666')
+          .text('?');
+
+        g.append('text')
+          .attr('x', xScale(2))
+          .attr('y', yScale(1.5) - 25)
+          .attr('text-anchor', 'middle')
+          .attr('font-size', '16px')
+          .attr('fill', '#666')
+          .text('?');
+
+        g.append('text')
+          .attr('x', xScale(0))
+          .attr('y', yScale(-1.5) - 25)
+          .attr('text-anchor', 'middle')
+          .attr('font-size', '16px')
+          .attr('fill', '#666')
+          .text('?');
+      })();
+
+      // 2. HDBSCAN STEP-BY-STEP DEMO - The core visualization
+      ;(function () {
+        const svg = d3.select('#hdbscan-demo');
+        const width = 700;
+        const height = 400;
+        const margin = 40;
+
+        const g = svg
+          .append('g')
+          .attr('transform', `translate(${width / 2}, ${height / 2})`);
+
+        const xScale = d3.scaleLinear().domain([-5, 5]).range([-width / 2 + margin, width / 2 - margin]);
+        const yScale = d3.scaleLinear().domain([-4, 4]).range([height / 2 - margin, -(height / 2 - margin)]);
+
+        const clusterDefs = [
+          { cx: -2.5, cy: 1.0, spread: 1.0 },
+          { cx: 2, cy: 1.5, spread: 0.9 },
+          { cx: 0, cy: -1.8, spread: 1.3 },
+        ];
+        const points = generateClusteredPoints(clusterDefs, 12, 6);
+
+        // Draw circles for density indication
+        const densityCircles = g.append('g').attr('class', 'density-circles');
+
+        // Draw points
+        const pointsGroup = g.append('g').attr('class', 'points');
+
+        points.forEach((p, i) => {
+          pointsGroup
+            .append('circle')
+            .attr('cx', xScale(p.x))
+            .attr('cy', yScale(p.y))
+            .attr('r', 7)
+            .attr('fill', '#999')
+            .attr('stroke', '#fff')
+            .attr('stroke-width', 1.5)
+            .attr('class', `point-${i}`);
+        });
+
+        // Step states
+        const steps = {
+          1: () => {
+            // Show all points as gray
+            pointsGroup.selectAll('circle').transition().duration(500).attr('fill', '#999').attr('opacity', 1);
+            densityCircles.selectAll('*').remove();
+          },
+          2: () => {
+            // Show density circles - the core HDBSCAN intuition
+            pointsGroup
+              .selectAll('circle')
+              .transition()
+              .duration(500)
+              .attr('fill', (d, i) => {
+                const p = points[i];
+                if (p.type === 'noise') return '#ddd';
+                // Denser = darker
+                return p.cluster === 0
+                  ? '#4299e1'
+                  : p.cluster === 1
+                    ? '#48bb78'
+                    : '#ed8936';
+              })
+              .attr('opacity', (d, i) => {
+                const p = points[i];
+                return p.type === 'noise' ? 0.5 : 0.7;
+              });
+
+            densityCircles.selectAll('*').remove();
+            points.forEach((p, i) => {
+              if (p.type === 'cluster') {
+                const radius = 20 + Math.random() * 15;
+                densityCircles
+                  .append('circle')
+                  .attr('cx', xScale(p.x))
+                  .attr('cy', yScale(p.y))
+                  .attr('r', 0)
+                  .attr('fill', 'none')
+                  .attr('stroke', p.cluster === 0 ? '#4299e1' : p.cluster === 1 ? '#48bb78' : '#ed8936')
+                  .attr('stroke-width', 1)
+                  .attr('opacity', 0.3)
+                  .transition()
+                  .duration(500)
+                  .attr('r', radius);
+              }
+            });
+          },
+          3: () => {
+            // Show clusters clearly
+            densityCircles.selectAll('*').transition().duration(300).attr('opacity', 0);
+
+            pointsGroup
+              .selectAll('circle')
+              .transition()
+              .duration(500)
+              .attr('fill', (d, i) => {
+                const p = points[i];
+                if (p.type === 'noise') return '#ddd';
+                return clusterColors[p.cluster];
+              })
+              .attr('opacity', (d, i) => {
+                const p = points[i];
+                return p.type === 'noise' ? 0.4 : 0.9;
+              })
+              .attr('r', (d, i) => {
+                const p = points[i];
+                return p.type === 'noise' ? 5 : 9;
+              });
+
+            // Add cluster labels
+            const clusterCenters = [
+              { cx: -2.5, cy: 1.0, label: 'A' },
+              { cx: 2, cy: 1.5, label: 'B' },
+              { cx: 0, cy: -1.8, label: 'C' },
+            ];
+
+            clusterCenters.forEach((c) => {
+              g.append('text')
+                .attr('x', xScale(c.cx))
+                .attr('y', yScale(c.cy) - 25)
+                .attr('text-anchor', 'middle')
+                .attr('font-size', '24px')
+                .attr('font-weight', 'bold')
+                .attr('fill', '#333')
+                .attr('class', 'cluster-label')
+                .text(c.label);
+            });
+          },
+          4: () => {
+            // Show noise points
+            g.selectAll('.cluster-label').remove();
+
+            pointsGroup
+              .selectAll('circle')
+              .transition()
+              .duration(500)
+              .attr('fill', (d, i) => {
+                const p = points[i];
+                if (p.type === 'noise') return '#e53e3e';
+                return clusterColors[p.cluster];
+              })
+              .attr('opacity', (d, i) => {
+                const p = points[i];
+                return p.type === 'noise' ? 1 : 0.7;
+              })
+              .attr('r', (d, i) => {
+                const p = points[i];
+                return p.type === 'noise' ? 10 : 8;
+              });
+
+            // Add noise label
+            const noisePoints = points.filter((p) => p.type === 'noise');
+            if (noisePoints.length > 0) {
+              const avgX = noisePoints.reduce((sum, p) => sum + p.x, 0) / noisePoints.length;
+              const avgY = noisePoints.reduce((sum, p) => sum + p.y, 0) / noisePoints.length;
+
+              g.append('text')
+                .attr('x', xScale(avgX) + 60)
+                .attr('y', yScale(avgY))
+                .attr('font-size', '18px')
+                .attr('fill', '#e53e3e')
+                .attr('font-weight', 'bold')
+                .attr('class', 'noise-label')
+                .text('Noise (-1)');
+            }
+          },
+        };
+
+        // Fragment event handlers for Reveal.js
+        function activateStep(step) {
+          steps[step]();
+        }
+
+        // Expose activateStep globally for Reveal event handlers
+        window.hdbscanActivateStep = activateStep;
+
+      })();
+
       Reveal.initialize({
         history: true,
         plugins: [RevealHighlight],
+      }).then(() => {
+        // Set up fragment event listeners after Reveal is initialized
+        Reveal.on('fragmentshown', (event) => {
+          const index = parseInt(event.fragment.dataset.fragmentIndex);
+          if (index >= 1 && index <= 4) {
+            window.hdbscanActivateStep(index);
+          }
+        });
+
+        Reveal.on('fragmenthidden', (event) => {
+          const index = parseInt(event.fragment.dataset.fragmentIndex);
+          if (index >= 1 && index <= 4) {
+            // Go back to previous step (or step 1 if going before first fragment)
+            window.hdbscanActivateStep(Math.max(1, index - 1));
+          }
+        });
+
+        // Handle slide changes - reset visualization when entering the slide
+        Reveal.on('slidechanged', (event) => {
+          // Find the HDBSCAN demo slide
+          const hdbscanSlide = event.currentSlide.querySelector('#hdbscan-demo');
+          if (hdbscanSlide) {
+            // Reset to initial state (step 1)
+            window.hdbscanActivateStep(1);
+          }
+        });
+
+        // Initialize with step 1
+        window.hdbscanActivateStep(1);
       });
     </script>
   </body>
