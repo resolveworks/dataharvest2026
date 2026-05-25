@@ -754,153 +754,17 @@ embedding = model.encode(sentence)
           <p class="fragment">
             Connect each point to its <strong>k nearest neighbors</strong>
           </p>
+          <p class="fragment">
+            Closer neighbors get a <strong>stronger connection</strong>
+          </p>
           <div>
             <svg
               id="umap-neighbors"
-              width="800"
-              height="370"
+              width="688"
+              height="352"
               style="display: block; margin: 0 auto"
             >
-              <!-- Edges: draw first so points render on top -->
-              <!-- Blue cluster edges -->
-              <!-- A-B: very close → thick -->
-              <line
-                x1="199.5"
-                y1="159.6"
-                x2="246.1"
-                y2="117.0"
-                stroke="#4299e1"
-                stroke-width="10.6"
-                opacity="0.7"
-              />
-              <!-- A-C: close → thick -->
-              <line
-                x1="199.5"
-                y1="159.6"
-                x2="279.3"
-                y2="172.9"
-                stroke="#4299e1"
-                stroke-width="8.0"
-                opacity="0.6"
-              />
-              <!-- B-C: medium -->
-              <line
-                x1="246.1"
-                y1="117.0"
-                x2="279.3"
-                y2="172.9"
-                stroke="#4299e1"
-                stroke-width="5.3"
-                opacity="0.5"
-              />
-              <!-- A-D: farther -->
-              <line
-                x1="199.5"
-                y1="159.6"
-                x2="172.9"
-                y2="226.1"
-                stroke="#4299e1"
-                stroke-width="3.3"
-                opacity="0.5"
-              />
-              <!-- B-E: farther -->
-              <line
-                x1="246.1"
-                y1="117.0"
-                x2="159.6"
-                y2="93.1"
-                stroke="#4299e1"
-                stroke-width="2.7"
-                opacity="0.4"
-              />
-
-              <!-- Green cluster edges -->
-              <!-- F-G: very close → thick -->
-              <line
-                x1="558.6"
-                y1="153.0"
-                x2="605.1"
-                y2="113.1"
-                stroke="#48bb78"
-                stroke-width="10.6"
-                opacity="0.7"
-              />
-              <!-- F-H: close -->
-              <line
-                x1="558.6"
-                y1="153.0"
-                x2="631.8"
-                y2="179.6"
-                stroke="#48bb78"
-                stroke-width="8.0"
-                opacity="0.6"
-              />
-              <!-- G-H: medium -->
-              <line
-                x1="605.1"
-                y1="113.1"
-                x2="631.8"
-                y2="179.6"
-                stroke="#48bb78"
-                stroke-width="5.3"
-                opacity="0.5"
-              />
-              <!-- F-I: farther -->
-              <line
-                x1="558.6"
-                y1="153.0"
-                x2="532"
-                y2="219.5"
-                stroke="#48bb78"
-                stroke-width="3.3"
-                opacity="0.5"
-              />
-              <!-- G-J: farther -->
-              <line
-                x1="605.1"
-                y1="113.1"
-                x2="525.4"
-                y2="86.5"
-                stroke="#48bb78"
-                stroke-width="2.7"
-                opacity="0.4"
-              />
-
-              <!-- Cross-cluster: very weak connection -->
-              <line
-                x1="279.3"
-                y1="172.9"
-                x2="532"
-                y2="153.0"
-                stroke="#999"
-                stroke-width="1.3"
-                opacity="0.3"
-                stroke-dasharray="5,5"
-              />
-
-              <!-- Points: blue cluster -->
-              <circle cx="199.5" cy="159.6" r="9.3" fill="#4299e1" />
-              <circle cx="246.1" cy="117.0" r="9.3" fill="#4299e1" />
-              <circle cx="279.3" cy="172.9" r="9.3" fill="#4299e1" />
-              <circle cx="172.9" cy="226.1" r="9.3" fill="#4299e1" />
-              <circle cx="159.6" cy="93.1" r="9.3" fill="#4299e1" />
-
-              <!-- Points: green cluster -->
-              <circle cx="558.6" cy="153.0" r="9.3" fill="#48bb78" />
-              <circle cx="605.1" cy="113.1" r="9.3" fill="#48bb78" />
-              <circle cx="631.8" cy="179.6" r="9.3" fill="#48bb78" />
-              <circle cx="532" cy="219.5" r="9.3" fill="#48bb78" />
-              <circle cx="525.4" cy="86.5" r="9.3" fill="#48bb78" />
-              <!-- Label -->
-              <text
-                x="399"
-                y="39.9"
-                text-anchor="middle"
-                font-size="20.8px"
-                fill="#666"
-              >
-                Thicker = closer neighbors
-              </text>
+              <!-- Built in JS: weighted kNN graph, widths from real distances -->
             </svg>
           </div>
         </section>
@@ -981,6 +845,9 @@ embedding = model.encode(sentence)
               </g>
             </svg>
           </div>
+          <p class="fragment">
+            Stronger connections <strong>pull harder</strong>
+          </p>
           <p class="fragment">The system finds <strong>equilibrium</strong></p>
         </section>
 
@@ -3956,6 +3823,92 @@ embedding = model.encode(sentence)
           .attr("font-size", "16px")
           .attr("fill", "#666")
           .text("?");
+      })();
+
+      // UMAP STEP 1 - weighted k-nearest-neighbour graph.
+      // Edge thickness is derived from the ACTUAL distance between points
+      // (closer neighbours -> thicker link), not hand-tuned.
+      (function () {
+        const svg = d3.select("#umap-neighbors");
+        if (svg.empty()) return;
+
+        const groupColor = ["#4299e1", "#48bb78"];
+        const nodes = [
+          { x: 48, y: 115, g: 0 },
+          { x: 162, y: 70, g: 0 },
+          { x: 230, y: 168, g: 0 },
+          { x: 109, y: 229, g: 0 },
+          { x: 291, y: 115, g: 0 },
+          { x: 382, y: 153, g: 1 },
+          { x: 496, y: 92, g: 1 },
+          { x: 557, y: 198, g: 1 },
+          { x: 428, y: 267, g: 1 },
+          { x: 641, y: 130, g: 1 },
+        ];
+        const k = 2;
+        const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+
+        // Undirected union of each node's k nearest neighbours.
+        const seen = new Map();
+        nodes.forEach((a, i) => {
+          nodes
+            .map((b, j) => ({ j, d: dist(a, b) }))
+            .filter((o) => o.j !== i)
+            .sort((p, q) => p.d - q.d)
+            .slice(0, k)
+            .forEach(({ j, d }) => {
+              const key = i < j ? `${i}_${j}` : `${j}_${i}`;
+              if (!seen.has(key)) {
+                const [s, t] = key.split("_").map(Number);
+                seen.set(key, { s, t, d });
+              }
+            });
+        });
+        const edges = [...seen.values()];
+
+        // Closer -> thicker. Mapping 1/distance makes close pairs stand out.
+        const widthScale = d3
+          .scaleLinear()
+          .domain(d3.extent(edges, (e) => 1 / e.d))
+          .range([2.4, 12]);
+
+        const sameGroup = (e) => nodes[e.s].g === nodes[e.t].g;
+
+        svg
+          .append("g")
+          .selectAll("line")
+          .data(edges)
+          .join("line")
+          .attr("x1", (e) => nodes[e.s].x)
+          .attr("y1", (e) => nodes[e.s].y)
+          .attr("x2", (e) => nodes[e.t].x)
+          .attr("y2", (e) => nodes[e.t].y)
+          .attr("stroke", (e) =>
+            sameGroup(e) ? groupColor[nodes[e.s].g] : "#999",
+          )
+          .attr("stroke-width", (e) => widthScale(1 / e.d))
+          .attr("stroke-linecap", "round")
+          .attr("opacity", (e) => (sameGroup(e) ? 0.6 : 0.4))
+          .attr("stroke-dasharray", (e) => (sameGroup(e) ? null : "5,5"));
+
+        svg
+          .append("g")
+          .selectAll("circle")
+          .data(nodes)
+          .join("circle")
+          .attr("cx", (d) => d.x)
+          .attr("cy", (d) => d.y)
+          .attr("r", 11)
+          .attr("fill", (d) => groupColor[d.g]);
+
+        svg
+          .append("text")
+          .attr("x", 344)
+          .attr("y", 332)
+          .attr("text-anchor", "middle")
+          .attr("font-size", "16px")
+          .attr("fill", "#666")
+          .text("Thicker = closer neighbors");
       })();
 
       Reveal.initialize({
