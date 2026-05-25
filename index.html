@@ -624,33 +624,40 @@ embedding = model.encode(sentence)
             <svg
               id="umap-manifold"
               width="700"
-              height="250"
+              height="290"
+              viewBox="0 -20 700 290"
               style="display: block; margin: 0 auto"
             >
-              <!-- Crumpled manifold -->
+              <!-- Curved manifold (exaggerated wave) -->
               <path
-                d="M50,180 C100,60 150,200 200,100 C250,20 300,180 350,120 C400,60 450,200 500,90 C550,30 600,160 650,120"
+                id="manifold-curve"
+                d="M30,160 C100,160 100,20 170,20 C240,20 240,210 310,210 C380,210 380,10 450,10 C520,10 520,210 590,210 C630,210 630,110 670,110"
                 fill="none"
                 stroke="#cbd5e0"
-                stroke-width="3"
+                stroke-width="4"
+                stroke-linecap="round"
               />
-              <!-- Points on the manifold -->
-              <circle cx="80" cy="130" r="6" fill="#4299e1" />
-              <circle cx="120" cy="90" r="6" fill="#4299e1" />
-              <circle cx="140" cy="170" r="6" fill="#4299e1" />
-              <circle cx="200" cy="100" r="6" fill="#48bb78" />
-              <circle cx="230" cy="50" r="6" fill="#48bb78" />
-              <circle cx="260" cy="80" r="6" fill="#48bb78" />
-              <circle cx="350" cy="120" r="6" fill="#ed8936" />
-              <circle cx="380" cy="90" r="6" fill="#ed8936" />
-              <circle cx="420" cy="70" r="6" fill="#ed8936" />
-              <circle cx="500" cy="90" r="6" fill="#9f7aea" />
-              <circle cx="540" cy="50" r="6" fill="#9f7aea" />
-              <circle cx="580" cy="110" r="6" fill="#9f7aea" />
+              <!-- Points living on the curve (positions set in JS) -->
+              <!-- Blue cluster -->
+              <circle class="manifold-pt" r="6" fill="#4299e1" />
+              <circle class="manifold-pt" r="6" fill="#4299e1" />
+              <circle class="manifold-pt" r="6" fill="#4299e1" />
+              <!-- Green cluster -->
+              <circle class="manifold-pt" r="6" fill="#48bb78" />
+              <circle class="manifold-pt" r="6" fill="#48bb78" />
+              <circle class="manifold-pt" r="6" fill="#48bb78" />
+              <!-- Orange cluster -->
+              <circle class="manifold-pt" r="6" fill="#ed8936" />
+              <circle class="manifold-pt" r="6" fill="#ed8936" />
+              <circle class="manifold-pt" r="6" fill="#ed8936" />
+              <!-- Purple cluster -->
+              <circle class="manifold-pt" r="6" fill="#9f7aea" />
+              <circle class="manifold-pt" r="6" fill="#9f7aea" />
+              <circle class="manifold-pt" r="6" fill="#9f7aea" />
               <!-- Label -->
               <text
-                x="350"
-                y="240"
+                x="330"
+                y="245"
                 text-anchor="middle"
                 font-size="16px"
                 fill="#666"
@@ -675,17 +682,18 @@ embedding = model.encode(sentence)
               <!-- Before: crumpled -->
               <g transform="translate(0, 20)">
                 <path
+                  id="crumpled-curve"
                   d="M30,80 C60,20 90,120 120,50 C150,10 180,100 210,60 C240,20 270,90 300,70"
                   fill="none"
                   stroke="#cbd5e0"
                   stroke-width="2"
                 />
-                <circle cx="50" cy="55" r="5" fill="#4299e1" />
-                <circle cx="100" cy="80" r="5" fill="#4299e1" />
-                <circle cx="140" cy="30" r="5" fill="#48bb78" />
-                <circle cx="180" cy="70" r="5" fill="#48bb78" />
-                <circle cx="230" cy="40" r="5" fill="#ed8936" />
-                <circle cx="270" cy="75" r="5" fill="#ed8936" />
+                <circle class="crumpled-pt" r="5" fill="#4299e1" />
+                <circle class="crumpled-pt" r="5" fill="#4299e1" />
+                <circle class="crumpled-pt" r="5" fill="#48bb78" />
+                <circle class="crumpled-pt" r="5" fill="#48bb78" />
+                <circle class="crumpled-pt" r="5" fill="#ed8936" />
+                <circle class="crumpled-pt" r="5" fill="#ed8936" />
                 <text
                   x="150"
                   y="140"
@@ -3498,6 +3506,35 @@ embedding = model.encode(sentence)
       import "https://cdn.jsdelivr.net/npm/reveal.js@5.2.1/dist/reveal.min.js";
       import "https://cdn.jsdelivr.net/npm/reveal.js@5.2.1/plugin/highlight/highlight.js";
       import "https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js";
+
+      // Snap points onto their curves
+      function snapToCurve(curveId, ptSelector, centers, offsets, ptsPerCluster) {
+        const curve = document.getElementById(curveId);
+        if (!curve) return;
+        const len = curve.getTotalLength();
+        document.querySelectorAll(ptSelector).forEach((pt, i) => {
+          const frac =
+            centers[Math.floor(i / ptsPerCluster)] + offsets[i % ptsPerCluster];
+          const p = curve.getPointAtLength(len * frac);
+          pt.setAttribute("cx", p.x);
+          pt.setAttribute("cy", p.y);
+        });
+      }
+
+      snapToCurve(
+        "manifold-curve",
+        ".manifold-pt",
+        [0.13, 0.38, 0.63, 0.87],
+        [-0.045, 0, 0.045],
+        3,
+      );
+      snapToCurve(
+        "crumpled-curve",
+        ".crumpled-pt",
+        [0.2, 0.5, 0.8],
+        [-0.06, 0.06],
+        2,
+      );
 
       // Initialize angle chart
       const angleSvg = d3.select("#angle-chart");
