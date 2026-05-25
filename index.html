@@ -582,7 +582,7 @@ embedding = model.encode(sentence)
         <!-- UMAP SECTION -->
 
         <section>
-          <p>We can find similar things in 384-dimensional space</p>
+          <p>Well, it would be great to visualize this space</p>
           <p class="fragment">
             But we can't <strong>visualize</strong> 384 dimensions
           </p>
@@ -597,7 +597,7 @@ embedding = model.encode(sentence)
 
         <section>
           <p>
-            Take our vectors and map them to
+            Take our vectors and project them into
             <strong>2D</strong>
           </p>
           <p class="fragment">
@@ -607,6 +607,7 @@ embedding = model.encode(sentence)
 
         <section>
           <p>This is called <strong>dimensionality reduction</strong></p>
+          <p class="fragment">And there's algorithms for that</p>
           <p class="fragment">We'll use <strong>UMAP</strong></p>
           <p class="fragment" style="font-size: 1.2rem; color: #888">
             (Uniform Manifold Approximation and Projection)
@@ -716,12 +717,12 @@ embedding = model.encode(sentence)
                   stroke-width="1"
                   stroke-dasharray="4,4"
                 />
-                <circle cx="50" cy="65" r="5" fill="#4299e1" />
-                <circle cx="80" cy="75" r="5" fill="#4299e1" />
-                <circle cx="130" cy="60" r="5" fill="#48bb78" />
+                <circle cx="50" cy="70" r="5" fill="#4299e1" />
+                <circle cx="80" cy="70" r="5" fill="#4299e1" />
+                <circle cx="130" cy="70" r="5" fill="#48bb78" />
                 <circle cx="160" cy="70" r="5" fill="#48bb78" />
-                <circle cx="210" cy="65" r="5" fill="#ed8936" />
-                <circle cx="250" cy="72" r="5" fill="#ed8936" />
+                <circle cx="210" cy="70" r="5" fill="#ed8936" />
+                <circle cx="250" cy="70" r="5" fill="#ed8936" />
                 <text
                   x="150"
                   y="140"
@@ -973,78 +974,6 @@ embedding = model.encode(sentence)
             </svg>
           </div>
           <p class="fragment">The system finds <strong>equilibrium</strong></p>
-        </section>
-
-        <section>
-          <p>Like <strong>unfolding a crumpled map</strong></p>
-          <p class="fragment">
-            The geography stays the same, but it's flat now
-          </p>
-          <div style="margin-top: 20px">
-            <svg
-              width="700"
-              height="220"
-              style="display: block; margin: 0 auto"
-            >
-              <!-- Crumpled -->
-              <g transform="translate(0, 10)">
-                <path
-                  d="M30,100 C60,30 100,140 140,60 C180,10 210,120 250,50"
-                  fill="none"
-                  stroke="#cbd5e0"
-                  stroke-width="2"
-                />
-                <circle cx="50" cy="70" r="5" fill="#4299e1" />
-                <circle cx="90" cy="100" r="5" fill="#48bb78" />
-                <circle cx="150" cy="40" r="5" fill="#ed8936" />
-                <circle cx="220" cy="70" r="5" fill="#9f7aea" />
-                <text
-                  x="140"
-                  y="170"
-                  text-anchor="middle"
-                  font-size="14px"
-                  fill="#666"
-                >
-                  Crumpled (384D)
-                </text>
-              </g>
-              <!-- Arrow -->
-              <text
-                x="330"
-                y="80"
-                text-anchor="middle"
-                font-size="40px"
-                fill="#cbd5e0"
-              >
-                →
-              </text>
-              <!-- Flat -->
-              <g transform="translate(380, 10)">
-                <line
-                  x1="30"
-                  y1="80"
-                  x2="250"
-                  y2="80"
-                  stroke="#e2e8f0"
-                  stroke-width="1"
-                  stroke-dasharray="4,4"
-                />
-                <circle cx="60" cy="80" r="5" fill="#4299e1" />
-                <circle cx="110" cy="80" r="5" fill="#48bb78" />
-                <circle cx="170" cy="80" r="5" fill="#ed8936" />
-                <circle cx="230" cy="80" r="5" fill="#9f7aea" />
-                <text
-                  x="140"
-                  y="170"
-                  text-anchor="middle"
-                  font-size="14px"
-                  fill="#666"
-                >
-                  Flat (2D)
-                </text>
-              </g>
-            </svg>
-          </div>
         </section>
 
         <section>
