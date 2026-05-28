@@ -12,10 +12,6 @@ A hands-on, code-based session that walks through a workflow for making large te
 
 No prior ML experience required.
 
-## Slides
-
-Hosted at **[textembeddings.resolve.works](https://textembeddings.resolve.works)** — built with [Reveal.js](https://revealjs.com/).
-
 ## To follow along
 
 - Python installed with Jupyter Notebook, or a [Google Colab](https://colab.research.google.com/) account
