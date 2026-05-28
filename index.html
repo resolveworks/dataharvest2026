@@ -864,19 +864,9 @@ embedding = model.encode(sentence)
         <!-- CLUSTERING SECTION -->
 
         <section>
-          <p>We have a bunch of documents, embedded as vectors...</p>
+          <p>When we plot them, we can see what <strong>groups together</strong></p>
           <p class="fragment">
-            <strong>Can we find natural groupings?</strong>
-          </p>
-        </section>
-
-        <section>
-          <p>
-            Imagine plotting all our embeddings in
-            <strong>2D space</strong>
-          </p>
-          <p class="fragment">
-            Some points cluster together, others float alone
+            Similar documents land in the same neighborhood
           </p>
           <div style="margin-top: 30px">
             <svg
@@ -890,7 +880,7 @@ embedding = model.encode(sentence)
 
         <section>
           <p>
-            We can find these groups
+            Would be cool if we could find these groupings
             <strong>automatically</strong>
           </p>
           <p class="fragment">
