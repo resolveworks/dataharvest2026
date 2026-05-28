@@ -634,22 +634,18 @@ embedding = model.encode(sentence)
                 stroke-linecap="round"
               />
               <!-- Points living on the curve (positions set in JS) -->
-              <!-- Blue cluster -->
               <circle class="manifold-pt" r="6" fill="#4299e1" />
               <circle class="manifold-pt" r="6" fill="#4299e1" />
               <circle class="manifold-pt" r="6" fill="#4299e1" />
-              <!-- Green cluster -->
-              <circle class="manifold-pt" r="6" fill="#48bb78" />
-              <circle class="manifold-pt" r="6" fill="#48bb78" />
-              <circle class="manifold-pt" r="6" fill="#48bb78" />
-              <!-- Orange cluster -->
-              <circle class="manifold-pt" r="6" fill="#ed8936" />
-              <circle class="manifold-pt" r="6" fill="#ed8936" />
-              <circle class="manifold-pt" r="6" fill="#ed8936" />
-              <!-- Purple cluster -->
-              <circle class="manifold-pt" r="6" fill="#9f7aea" />
-              <circle class="manifold-pt" r="6" fill="#9f7aea" />
-              <circle class="manifold-pt" r="6" fill="#9f7aea" />
+              <circle class="manifold-pt" r="6" fill="#4299e1" />
+              <circle class="manifold-pt" r="6" fill="#4299e1" />
+              <circle class="manifold-pt" r="6" fill="#4299e1" />
+              <circle class="manifold-pt" r="6" fill="#4299e1" />
+              <circle class="manifold-pt" r="6" fill="#4299e1" />
+              <circle class="manifold-pt" r="6" fill="#4299e1" />
+              <circle class="manifold-pt" r="6" fill="#4299e1" />
+              <circle class="manifold-pt" r="6" fill="#4299e1" />
+              <circle class="manifold-pt" r="6" fill="#4299e1" />
               <!-- Label -->
               <text
                 x="330"
@@ -685,10 +681,10 @@ embedding = model.encode(sentence)
                 />
                 <circle class="crumpled-pt" r="5" fill="#4299e1" />
                 <circle class="crumpled-pt" r="5" fill="#4299e1" />
-                <circle class="crumpled-pt" r="5" fill="#48bb78" />
-                <circle class="crumpled-pt" r="5" fill="#48bb78" />
-                <circle class="crumpled-pt" r="5" fill="#ed8936" />
-                <circle class="crumpled-pt" r="5" fill="#ed8936" />
+                <circle class="crumpled-pt" r="5" fill="#4299e1" />
+                <circle class="crumpled-pt" r="5" fill="#4299e1" />
+                <circle class="crumpled-pt" r="5" fill="#4299e1" />
+                <circle class="crumpled-pt" r="5" fill="#4299e1" />
                 <text
                   x="150"
                   y="140"
@@ -721,10 +717,10 @@ embedding = model.encode(sentence)
                 />
                 <circle cx="50" cy="70" r="5" fill="#4299e1" />
                 <circle cx="80" cy="70" r="5" fill="#4299e1" />
-                <circle cx="130" cy="70" r="5" fill="#48bb78" />
-                <circle cx="160" cy="70" r="5" fill="#48bb78" />
-                <circle cx="210" cy="70" r="5" fill="#ed8936" />
-                <circle cx="250" cy="70" r="5" fill="#ed8936" />
+                <circle cx="130" cy="70" r="5" fill="#4299e1" />
+                <circle cx="160" cy="70" r="5" fill="#4299e1" />
+                <circle cx="210" cy="70" r="5" fill="#4299e1" />
+                <circle cx="250" cy="70" r="5" fill="#4299e1" />
                 <text
                   x="150"
                   y="140"
@@ -3835,18 +3831,18 @@ embedding = model.encode(sentence)
         const svg = d3.select("#umap-neighbors");
         if (svg.empty()) return;
 
-        const groupColor = ["#4299e1", "#48bb78"];
+        const pointColor = "#4299e1";
         const nodes = [
-          { x: 48, y: 115, g: 0 },
-          { x: 162, y: 70, g: 0 },
-          { x: 230, y: 168, g: 0 },
-          { x: 109, y: 229, g: 0 },
-          { x: 291, y: 115, g: 0 },
-          { x: 382, y: 153, g: 1 },
-          { x: 496, y: 92, g: 1 },
-          { x: 557, y: 198, g: 1 },
-          { x: 428, y: 267, g: 1 },
-          { x: 641, y: 130, g: 1 },
+          { x: 48, y: 115 },
+          { x: 162, y: 70 },
+          { x: 230, y: 168 },
+          { x: 109, y: 229 },
+          { x: 291, y: 115 },
+          { x: 382, y: 153 },
+          { x: 496, y: 92 },
+          { x: 557, y: 198 },
+          { x: 428, y: 267 },
+          { x: 641, y: 130 },
         ];
         const k = 2;
         const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
@@ -3875,8 +3871,6 @@ embedding = model.encode(sentence)
           .domain(d3.extent(edges, (e) => 1 / e.d))
           .range([2.4, 12]);
 
-        const sameGroup = (e) => nodes[e.s].g === nodes[e.t].g;
-
         svg
           .append("g")
           .selectAll("line")
@@ -3886,13 +3880,10 @@ embedding = model.encode(sentence)
           .attr("y1", (e) => nodes[e.s].y)
           .attr("x2", (e) => nodes[e.t].x)
           .attr("y2", (e) => nodes[e.t].y)
-          .attr("stroke", (e) =>
-            sameGroup(e) ? groupColor[nodes[e.s].g] : "#999",
-          )
+          .attr("stroke", pointColor)
           .attr("stroke-width", (e) => widthScale(1 / e.d))
           .attr("stroke-linecap", "round")
-          .attr("opacity", (e) => (sameGroup(e) ? 0.6 : 0.4))
-          .attr("stroke-dasharray", (e) => (sameGroup(e) ? null : "5,5"));
+          .attr("opacity", 0.6);
 
         svg
           .append("g")
@@ -3902,7 +3893,7 @@ embedding = model.encode(sentence)
           .attr("cx", (d) => d.x)
           .attr("cy", (d) => d.y)
           .attr("r", 11)
-          .attr("fill", (d) => groupColor[d.g]);
+          .attr("fill", pointColor);
 
         svg
           .append("text")
